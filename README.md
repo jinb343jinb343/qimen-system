@@ -20,11 +20,11 @@
 > 请在 GitHub 网页版点击右上角的 `✏️ (Edit)` 按钮，将你的电脑端或手机端系统截图直接**拖拽**到下方替换这些占位符即可！
 
 ### 🖥 桌面端全景
-![桌面端全景](./assets/pc.png)
+![桌面端全景](./assets/pc.png.png)
 
 ### 📱 手机端适配
 <div align="center">
-  <img src="./assets/mobile.png" alt="手机端适配" width="350"/>
+  <img src="./assets/mobile.png.jpg" alt="手机端适配" width="350"/>
 </div>
 
 ---
