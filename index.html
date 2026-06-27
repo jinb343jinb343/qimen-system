@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <script>
+    window.onerror = function(message, source, lineno, colno, error) {
+      // 仅在属于核心脚本 app.js 或 qimen.js 的报错时才提示红色横幅
+      if (source && !source.includes('app.js') && !source.includes('qimen.js')) {
+        return false;
+      }
+      const div = document.createElement('div');
+      div.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:#ef4444;color:#fff;padding:1rem;z-index:99999;font-family:monospace;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.5);line-height:1.5;';
+      div.innerHTML = '<strong>页面脚本报错 (Script Error):</strong><br>' + message + '<br><small>文件: ' + source + ' (第 ' + lineno + ' 行)</small>';
+      if (document.body) {
+        document.body.insertBefore(div, document.body.firstChild);
+      } else {
+        document.addEventListener('DOMContentLoaded', () => {
+          document.body.insertBefore(div, document.body.firstChild);
+        });
+      }
+      return false;
+    };
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>奇门遁甲智能排盘系统</title>
+  <meta name="description" content="一个高精度的网页端奇门遁甲自动排盘系统。只需输入公历时间，系统即可自动进行太阳黄经计算、推算节气、排出天盘、地盘、八门、九星、八神、旬空及驿马，并提供详细的宫位克应合局解析。">
+  <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="animate-fade-in">
+      <h1>奇门遁甲智能排盘系统</h1>
+      <p class="subtitle">—— 基于紫金山天文台历法计算标准与时家转盘奇门法则 ——</p>
+    </header>
+
+    <!-- Control Form Panel -->
+    <section class="glass-panel control-panel animate-fade-in" style="animation-delay: 0.1s;">
+      <form id="qimen-form" onsubmit="event.preventDefault(); triggerCalculate();">
+        <div class="control-grid">
+          
+
+
+          <!-- Date Input -->
+          <div class="form-group">
+            <label for="input-date">公历日期</label>
+            <input type="date" id="input-date" required>
+          </div>
+          
+          <!-- Time Input -->
+          <div class="form-group">
+            <label for="input-time">公历时间</label>
+            <input type="time" id="input-time" required>
+          </div>
+          
+          <!-- Parasite Palace Method -->
+          <div class="form-group">
+            <label for="sel-jigong">寄宫方式</label>
+            <select id="sel-jigong" onchange="triggerCalculate()">
+              <option value="kun">始终寄坤二宫</option>
+              <option value="yangkun_yingen">阳寄坤，阴寄艮</option>
+            </select>
+          </div>
+          
+          <!-- Quick Action Buttons -->
+          <div class="form-group">
+            <label>快速操作</label>
+            <div class="btn-container">
+              <button type="button" class="btn" onclick="useCurrentTime()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                当前时间
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                自动排盘
+              </button>
+              <button type="button" class="btn btn-angnet" id="btn-export-angnet" onclick="openAngnetExport()" title="导出全部盘面参数供 Angnet 解盘使用">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                导出给 Angnet
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Forecasting Modes -->
+        <div style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
+          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <label style="margin: 0; white-space: nowrap;">占断模式:</label>
+              <div class="mode-toggle-container" style="margin-top: 0;">
+                <button type="button" class="mode-btn active" id="mode-btn-academic" onclick="setForecastMode('academic')">学术排盘</button>
+                <button type="button" class="mode-btn" id="mode-btn-love" onclick="setForecastMode('love')">💘 感情</button>
+                <button type="button" class="mode-btn" id="mode-btn-wealth" onclick="setForecastMode('wealth')">💰 财运</button>
+                <button type="button" class="mode-btn" id="mode-btn-career" onclick="setForecastMode('career')">🏢 事业</button>
+                <button type="button" class="mode-btn" id="mode-btn-bestPalace" onclick="setForecastMode('bestPalace')">✨ 此时最吉宫位</button>
+              </div>
+            </div>
+
+            <!-- Nian Ming Selection (Only shown when mode is career) -->
+            <div id="nianming-group" class="form-group hidden" style="flex-direction: row; align-items: center; gap: 0.5rem;">
+              <label for="sel-nianming" style="margin: 0; white-space: nowrap;">求测人年命:</label>
+              <select id="sel-nianming" onchange="triggerCalculate()" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+                <option value="甲">甲 (仪)</option>
+                <option value="乙">乙 (奇)</option>
+                <option value="丙">丙 (奇)</option>
+                <option value="丁">丁 (奇)</option>
+                <option value="戊">戊 (仪)</option>
+                <option value="己">己 (仪)</option>
+                <option value="庚">庚 (仪)</option>
+                <option value="辛">辛 (仪)</option>
+                <option value="壬">壬 (仪)</option>
+                <option value="癸" selected>癸 (年命·生肖猪)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Drawing Board Tools (Only shown when mode is academic) -->
+        <div id="board-tools" class="board-tools-bar" style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <span style="font-size: 0.85rem; color: var(--text-secondary);">手写标记:</span>
+          <button type="button" class="tool-btn" id="btn-toggle-draw" onclick="toggleDrawingMode()">✏️ 开启画笔</button>
+          <button type="button" class="tool-btn" id="btn-clear-draw" onclick="clearDrawingBoard()">🗑️ 清空标记</button>
+          
+          <div class="color-selectors" style="display: flex; gap: 0.4rem; align-items: center; margin-left: 0.5rem;">
+            <button type="button" class="color-dot active" style="background-color: #ef4444;" onclick="changePenColor('#ef4444')" title="荧光红"></button>
+            <button type="button" class="color-dot" style="background-color: #eab308;" onclick="changePenColor('#eab308')" title="荧光黄"></button>
+            <button type="button" class="color-dot" style="background-color: #22c55e;" onclick="changePenColor('#22c55e')" title="荧光绿"></button>
+          </div>
+        </div>
+      </form>
+    </section>
+
+    <!-- Pillars Banner (四柱乾坤) -->
+    <section id="pillars-banner" class="glass-panel animate-fade-in hidden" style="animation-delay: 0.2s;">
+      <div class="pillars-container">
+        <!-- Year -->
+        <div class="pillar-card">
+          <div class="pillar-name">年柱 (岁次)</div>
+          <div class="pillar-gz" id="pillar-year">--</div>
+          <div class="pillar-kong" id="pillar-year-kong">--</div>
+        </div>
+        <!-- Month -->
+        <div class="pillar-card">
+          <div class="pillar-name">月柱 (月建)</div>
+          <div class="pillar-gz" id="pillar-month">--</div>
+          <div class="pillar-kong" id="pillar-month-kong">--</div>
+        </div>
+        <!-- Day -->
+        <div class="pillar-card">
+          <div class="pillar-name">日柱 (日元)</div>
+          <div class="pillar-gz" id="pillar-day">--</div>
+          <div class="pillar-kong" id="pillar-day-kong">--</div>
+        </div>
+        <!-- Hour -->
+        <div class="pillar-card">
+          <div class="pillar-name">时柱 (时神)</div>
+          <div class="pillar-gz" id="pillar-hour">--</div>
+          <div class="pillar-kong" id="pillar-hour-kong">--</div>
+        </div>
+      </div>
+      
+      <!-- Meta Information Banner -->
+      <div class="details-bar">
+        <div class="detail-item">
+          <span class="detail-label">当前节气:</span>
+          <span class="detail-value" id="val-term">--</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">排盘局数:</span>
+          <span class="detail-value" id="val-ju">--</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">时旬首:</span>
+          <span class="detail-value" id="val-xunshou">--</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">值符星:</span>
+          <span class="detail-value" id="val-zhifu">--</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">值使门:</span>
+          <span class="detail-value" id="val-zhishi">--</span>
+        </div>
+        <div class="detail-item">
+          <span class="detail-label">旬空:</span>
+          <span class="detail-value" id="val-xunkong">--</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Output Section -->
+    <div class="qimen-layout">
+      <!-- 9 Palaces (九宫格) -->
+      <main class="nine-grid animate-fade-in" id="nine-grid-container" style="animation-delay: 0.3s;">
+        <!-- Transparent Drawing Canvas Overlay -->
+        <canvas id="qimen-canvas"></canvas>
+        
+        <!-- Palace 4 (巽四宫 - Top Left) -->
+        <div class="palace-card" id="palace-4" onclick="selectPalace(4)">
+          <div class="palace-top">
+            <span class="palace-spirit" id="spirit-4">--</span>
+            <div class="palace-badges" id="badges-4"></div>
+          </div>
+          <div class="palace-mid">
+            <span class="palace-star" id="star-4">--</span>
+            <div class="palace-stems" style="align-items: flex-end;">
+              <span class="tian-stem" id="tian-4">--</span>
+              <span class="di-stem" id="di-4">--</span>
+            </div>
+          </div>
+          <div class="palace-bottom">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span class="palace-door" id="door-4">--</span>
+              <span class="an-stem" id="an-4">--</span>
+            </div>
+            <div class="palace-meta">
+              <span class="palace-gua">巽四</span>
+              <div class="palace-name">东南</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Palace 9 (离九宫 - Top Middle) -->
+        <div class="palace-card" id="palace-9" onclick="selectPalace(9)">
+          <div class="palace-top">
+            <span class="palace-spirit" id="spirit-9">--</span>
+            <div class="palace-badges" id="badges-9"></div>
+          </div>
+          <div class="palace-mid">
+            <span class="palace-star" id="star-9">--</span>
+            <div class="palace-stems" style="align-items: flex-end;">
+              <span class="tian-stem" id="tian-9">--</span>
+              <span class="di-stem" id="di-9">--</span>
+            </div>
+          </div>
+          <div class="palace-bottom">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span class="palace-door" id="door-9">--</span>
+              <span class="an-stem" id="an-9">--</span>
+            </div>
+            <div class="palace-meta">
+              <span class="palace-gua">离九</span>
+              <div class="palace-name">正南</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Palace 2 (坤二宫 - Top Right) -->
+        <div class="palace-card" id="palace-2" onclick="selectPalace(2)">
+          <div class="palace-top">
+            <span class="palace-spirit" id="spirit-2">--</span>
+            <div class="palace-badges" id="badges-2"></div>
+          </div>
+          <div class="palace-mid">
+            <span class="palace-star" id="star-2">--</span>
+            <div class="palace-stems" style="align-items: flex-end;">
+              <span class="tian-stem" id="tian-2">--</span>
+              <span class="di-stem" id="di-2">--</span>
+            </div>
+          </div>
+          <div class="palace-bottom">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span class="palace-door" id="door-2">--</span>
+              <span class="an-stem" id="an-2">--</span>
+            </div>
+            <div class="palace-meta">
+              <span class="palace-gua">坤二</span>
+              <div class="palace-name">西南</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Palace 3 (震三宫 - Middle Left) -->
+        <div class="palace-card" id="palace-3" onclick="selectPalace(3)">
+          <div class="palace-top">
+            <span class="palace-spirit" id="spirit-3">--</span>
+            <div class="palace-badges" id="badges-3"></div>
+          </div>
+          <div class="palace-mid">
+            <span class="palace-star" id="star-3">--</span>
+            <div class="palace-stems" style="align-items: flex-end;">
+              <span class="tian-stem" id="tian-3">--</span>
+              <span class="di-stem" id="di-3">--</span>
+            </div>
+          </div>
+          <div class="palace-bottom">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span class="palace-door" id="door-3">--</span>
+              <span class="an-stem" id="an-3">--</span>
+            </div>
+            <div class="palace-meta">
+              <span class="palace-gua">震三</span>
+              <div class="palace-name">正东</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Palace 5 (中五宫 - Center) -->
+        <div class="palace-card palace-center" id="palace-5">
+          <div class="center-title">中五宫</div>
+          <div class="center-desc" id="center-ju-text">待排盘</div>
+          <div class="center-info" id="center-yima-text"></div>
+        </div>
+
+        <!-- Palace 7 (兑七宫 - Middle Right) -->
+        <div class="palace-card" id="palace-7" onclick="selectPalace(7)">
+          <div class="palace-top">
+            <span class="palace-spirit" id="spirit-7">--</span>
+            <div class="palace-badges" id="badges-7"></div>
+          </div>
+          <div class="palace-mid">
+            <span class="palace-star" id="star-7">--</span>
+            <div class="palace-stems" style="align-items: flex-end;">
+              <span class="tian-stem" id="tian-7">--</span>
+              <span class="di-stem" id="di-7">--</span>
+            </div>
+          </div>
+          <div class="palace-bottom">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span class="palace-door" id="door-7">--</span>
+              <span class="an-stem" id="an-7">--</span>
+            </div>
+            <div class="palace-meta">
+              <span class="palace-gua">兑七</span>
+              <div class="palace-name">正西</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Palace 8 (艮八宫 - Bottom Left) -->
+        <div class="palace-card" id="palace-8" onclick="selectPalace(8)">
+          <div class="palace-top">
+            <span class="palace-spirit" id="spirit-8">--</span>
+            <div class="palace-badges" id="badges-8"></div>
+          </div>
+          <div class="palace-mid">
+            <span class="palace-star" id="star-8">--</span>
+            <div class="palace-stems" style="align-items: flex-end;">
+              <span class="tian-stem" id="tian-8">--</span>
+              <span class="di-stem" id="di-8">--</span>
+            </div>
+          </div>
+          <div class="palace-bottom">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span class="palace-door" id="door-8">--</span>
+              <span class="an-stem" id="an-8">--</span>
+            </div>
+            <div class="palace-meta">
+              <span class="palace-gua">艮八</span>
+              <div class="palace-name">东北</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Palace 1 (坎一宫 - Bottom Middle) -->
+        <div class="palace-card" id="palace-1" onclick="selectPalace(1)">
+          <div class="palace-top">
+            <span class="palace-spirit" id="spirit-1">--</span>
+            <div class="palace-badges" id="badges-1"></div>
+          </div>
+          <div class="palace-mid">
+            <span class="palace-star" id="star-1">--</span>
+            <div class="palace-stems" style="align-items: flex-end;">
+              <span class="tian-stem" id="tian-1">--</span>
+              <span class="di-stem" id="di-1">--</span>
+            </div>
+          </div>
+          <div class="palace-bottom">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span class="palace-door" id="door-1">--</span>
+              <span class="an-stem" id="an-1">--</span>
+            </div>
+            <div class="palace-meta">
+              <span class="palace-gua">坎一</span>
+              <div class="palace-name">正北</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Palace 6 (乾六宫 - Bottom Right) -->
+        <div class="palace-card" id="palace-6" onclick="selectPalace(6)">
+          <div class="palace-top">
+            <span class="palace-spirit" id="spirit-6">--</span>
+            <div class="palace-badges" id="badges-6"></div>
+          </div>
+          <div class="palace-mid">
+            <span class="palace-star" id="star-6">--</span>
+            <div class="palace-stems" style="align-items: flex-end;">
+              <span class="tian-stem" id="tian-6">--</span>
+              <span class="di-stem" id="di-6">--</span>
+            </div>
+          </div>
+          <div class="palace-bottom">
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+              <span class="palace-door" id="door-6">--</span>
+              <span class="an-stem" id="an-6">--</span>
+            </div>
+            <div class="palace-meta">
+              <span class="palace-gua">乾六</span>
+              <div class="palace-name">西北</div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+
+      <!-- Detailed Interpretations Sidebar -->
+      <aside class="glass-panel interpretation-panel animate-fade-in" style="animation-delay: 0.4s;">
+        <div class="tab-container">
+          <button type="button" class="tab-btn active" id="tab-btn-palace" onclick="switchSidebarTab('palace')">宫位详析</button>
+          <button type="button" class="tab-btn" id="tab-btn-report" onclick="switchSidebarTab('report')">运筹占断报告</button>
+        </div>
+
+        <div class="interp-header" id="interp-header-section">
+          <div class="interp-title" id="interp-title">宫位详析</div>
+          <span class="interp-gua-badge" id="interp-gua-badge">待选宫位</span>
+        </div>
+        
+        <div class="interp-content" id="interp-content-body">
+          <!-- Placeholder before selection -->
+          <div class="interp-placeholder">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 9.152c.582.448 1.148.89 1.676 1.345m-1.676-1.345c-.58-.447-1.147-.887-1.678-1.34m3.354 2.685c.53.45 1.072.893 1.62 1.328m0 0a28.347 28.347 0 01-1.62-1.328m1.62 1.328c.579.447 1.139.897 1.676 1.347m0 0a28.3 28.3 0 01-1.676-1.347M13.364 7.812c-.529-.45-1.072-.893-1.62-1.328m0 0a28.347 28.347 0 011.62 1.328m-1.62-1.328a28.3 28.3 0 00-1.676 1.347m1.676-1.347c-.582-.448-1.148-.89-1.676-1.345m0 0a28.3 28.3 0 001.676 1.345M8.332 11.27a28.27 28.27 0 01-1.676-1.347m1.676 1.347c.582.448 1.148.89 1.676 1.345m-1.676-1.345c-.58-.447-1.147-.887-1.678-1.34m3.354 2.685c.53.45 1.072.893 1.62 1.328M9.014 9.03c0-2.224 1.802-4.03 4.024-4.03s4.024 1.806 4.024 4.03c0 1.026-.383 1.96-1.012 2.671L12.038 16.03a1.5 1.5 0 01-2.122 0L6.038 12.03a3.987 3.987 0 01-1.012-2.672c0-1.22.545-2.31 1.4-3.053m4.61 2.755c-.52-.397-1.01-.812-1.464-1.243"></path>
+            </svg>
+            <p>请在九宫格中点击任意一个宫位，以查看该宫位的神、门、星、奇仪组合与吉凶详析。</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      <p>© 2026 奇门遁甲智能排盘系统. 仅供传统术数学术研究与排盘计算参考.</p>
+    </footer>
+  </div>
+
+  <!-- Astrological calculation and frontend scripts -->
+  <script src="qimen.js?v=2"></script>
+  <script src="forecast.js?v=2"></script>
+  <script src="app.js?v=3"></script>
+</body>
+</html>

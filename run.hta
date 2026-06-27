@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
+    <title>Qimen Calculator</title>
+    <script>
+        // 1. Mock window
+        window.QimenEngine = {};
+    </script>
+    <script src="qimen.js"></script>
+    <script src="forecast.js"></script>
+    <script>
+        window.onload = function() {
+            try {
+                // 2. Mock document for nianming dropdown
+                window.document.getElementById = function(id) {
+                    return { value: "癸" };
+                };
+                window.currentForecastMode = "academic";
+
+                // 3. 计算
+                // 2026年6月12日10:17:11 (月份是 0-indexed，6月对应 5)
+                var inputDate = new Date(2026, 5, 12, 10, 17, 11);
+                var chart = window.QimenEngine.calculateQimenChart(inputDate, null, "kun");
+                var text = buildAngnetText(chart);
+
+                // 4. 使用 FileSystemObject 写入本地文件
+                var fso = new ActiveXObject("Scripting.FileSystemObject");
+                var file = fso.CreateTextFile("chart_result.txt", true);
+                file.Write(text);
+                file.Close();
+            } catch(e) {
+                // 写入错误日志
+                var fso = new ActiveXObject("Scripting.FileSystemObject");
+                var file = fso.CreateTextFile("error.txt", true);
+                file.Write(e.message + "\n" + (e.stack || ""));
+                file.Close();
+            }
+            window.close();
+        };
+    </script>
+</head>
+<body>
+</body>
+</html>
