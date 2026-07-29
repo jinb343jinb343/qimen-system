@@ -27,7 +27,57 @@
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
+  <!-- 赛博风密码门卫系统 -->
+  <div id="auth-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(10,14,23,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:999999;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:opacity 0.5s ease;">
+    <div style="background:rgba(30,41,59,0.5);border:1px solid rgba(255,255,255,0.1);padding:3rem;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.5);text-align:center;transition:transform 0.1s;">
+      <h2 style="color:#e2e8f0;margin-bottom:1.5rem;font-size:1.5rem;letter-spacing:2px;font-weight:600;">[ 奇门系统·权限验证 ]</h2>
+      <input type="password" id="auth-password" placeholder="输入访问口令..." style="background:rgba(15,23,42,0.8);border:1px solid rgba(255,255,255,0.2);color:#10b981;padding:12px 20px;border-radius:8px;font-size:1.2rem;width:250px;text-align:center;outline:none;letter-spacing:5px;font-family:monospace;transition:all 0.3s;" onkeydown="if(event.key==='Enter') checkAuth()">
+      <div id="auth-error" style="color:#ef4444;margin-top:1rem;font-size:0.9rem;opacity:0;transition:opacity 0.3s;letter-spacing:1px;">指令错误，拒绝访问</div>
+    </div>
+  </div>
+  <script>
+    // 门禁指令
+    const SECRET_KEY = "jinb343";
+    
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedKey = localStorage.getItem('qimen_pass');
+      const overlay = document.getElementById('auth-overlay');
+      if(savedKey === SECRET_KEY) {
+        overlay.style.display = 'none'; // 已授权，揭开面纱
+      } else {
+        setTimeout(() => document.getElementById('auth-password').focus(), 100);
+      }
+    });
 
+    function checkAuth() {
+      const input = document.getElementById('auth-password');
+      const errorMsg = document.getElementById('auth-error');
+      if(input.value === SECRET_KEY) {
+        // 验证通过，烙印通行证
+        localStorage.setItem('qimen_pass', SECRET_KEY);
+        const overlay = document.getElementById('auth-overlay');
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.style.display = 'none', 500);
+      } else {
+        // 验证失败，警告动画
+        input.style.borderColor = '#ef4444';
+        errorMsg.style.opacity = '1';
+        
+        // 颤抖反馈
+        const box = input.parentElement;
+        box.style.transform = 'translateX(-10px)';
+        setTimeout(() => box.style.transform = 'translateX(10px)', 50);
+        setTimeout(() => box.style.transform = 'translateX(-10px)', 100);
+        setTimeout(() => box.style.transform = 'translateX(0)', 150);
+        
+        setTimeout(() => {
+          input.style.borderColor = 'rgba(255,255,255,0.2)';
+          errorMsg.style.opacity = '0';
+          input.value = '';
+        }, 2000);
+      }
+    }
+  </script>
   <div class="container">
     <!-- Header -->
     <header class="animate-fade-in">
@@ -74,11 +124,6 @@
               <button type="submit" class="btn btn-primary">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                 自动排盘
-              </button>
-              <button type="button" class="btn btn-angnet" id="btn-export-angnet" onclick="openAngnetExport()" title="导出全部盘面参数供 Angnet 解盘使用">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                导出给 Angnet
-              </button>
             </div>
           </div>
         </div>
@@ -410,6 +455,7 @@
         <div class="tab-container">
           <button type="button" class="tab-btn active" id="tab-btn-palace" onclick="switchSidebarTab('palace')">宫位详析</button>
           <button type="button" class="tab-btn" id="tab-btn-report" onclick="switchSidebarTab('report')">运筹占断报告</button>
+          <button type="button" class="tab-btn" id="tab-btn-chat" onclick="switchSidebarTab('chat')">奇门解盘</button>
         </div>
 
         <div class="interp-header" id="interp-header-section">
@@ -424,6 +470,24 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.042 9.152c.582.448 1.148.89 1.676 1.345m-1.676-1.345c-.58-.447-1.147-.887-1.678-1.34m3.354 2.685c.53.45 1.072.893 1.62 1.328m0 0a28.347 28.347 0 01-1.62-1.328m1.62 1.328c.579.447 1.139.897 1.676 1.347m0 0a28.3 28.3 0 01-1.676-1.347M13.364 7.812c-.529-.45-1.072-.893-1.62-1.328m0 0a28.347 28.347 0 011.62 1.328m-1.62-1.328a28.3 28.3 0 00-1.676 1.347m1.676-1.347c-.582-.448-1.148-.89-1.676-1.345m0 0a28.3 28.3 0 001.676 1.345M8.332 11.27a28.27 28.27 0 01-1.676-1.347m1.676 1.347c.582.448 1.148.89 1.676 1.345m-1.676-1.345c-.58-.447-1.147-.887-1.678-1.34m3.354 2.685c.53.45 1.072.893 1.62 1.328M9.014 9.03c0-2.224 1.802-4.03 4.024-4.03s4.024 1.806 4.024 4.03c0 1.026-.383 1.96-1.012 2.671L12.038 16.03a1.5 1.5 0 01-2.122 0L6.038 12.03a3.987 3.987 0 01-1.012-2.672c0-1.22.545-2.31 1.4-3.053m4.61 2.755c-.52-.397-1.01-.812-1.464-1.243"></path>
             </svg>
             <p>请在九宫格中点击任意一个宫位，以查看该宫位的神、门、星、奇仪组合与吉凶详析。</p>
+          </div>
+        </div>
+
+        <div class="interp-content" id="chat-content-body" style="display: none; padding: 0; flex-direction: column;">
+          <div class="ai-chat-header" style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.1);">
+            <span style="color: var(--gold-accent); font-weight: 600; font-size: 0.95rem;">AI 解盘向导</span>
+            <button onclick="clearAiChat()" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5; padding: 0.3rem 0.8rem; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s;">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 3px;"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>清空记忆
+            </button>
+          </div>
+          <div class="ai-chat-body" id="ai-chat-history">
+            <div class="chat-msg assistant">
+              <div class="chat-bubble">您好，我是您的AI解盘助理。排盘完成后，请随时向我提问。</div>
+            </div>
+          </div>
+          <div class="ai-chat-footer">
+            <input type="text" id="ai-chat-input" placeholder="请在此输入你想问的问题..." autocomplete="off" onkeypress="if(event.key==='Enter') sendAiChat()">
+            <button class="ai-chat-send-btn" onclick="sendAiChat()">发送</button>
           </div>
         </div>
       </aside>
