@@ -171,8 +171,25 @@ function switchSidebarTab(tab) {
 
 // On document load, initialize inputs with current time and plot the chart
 document.addEventListener("DOMContentLoaded", () => {
-  useCurrentTime();
-  triggerCalculate();
+  const cachedStateStr = localStorage.getItem('qimen_chat_state');
+  if (cachedStateStr) {
+    try {
+      const state = JSON.parse(cachedStateStr);
+      document.getElementById("input-date").value = state.date;
+      document.getElementById("input-time").value = state.time;
+      triggerCalculate(true); // isRestoring = true
+      
+      // 恢复内存状态
+      currentChatSessionId = state.sessionId;
+      qimenChatHistory = state.history || [];
+      const historyEl = document.getElementById("ai-chat-history");
+      if (historyEl) historyEl.innerHTML = state.html || "";
+    } catch (e) {
+      useCurrentTime();
+    }
+  } else {
+    useCurrentTime();
+  }
 });
 
 /**
@@ -206,7 +223,7 @@ function formatLocalTime(date) {
 
 
 
-function triggerCalculate() {
+function triggerCalculate(isRestoring = false) {
   const dateStr = document.getElementById("input-date").value;
   const timeStr = document.getElementById("input-time").value;
 
@@ -228,7 +245,15 @@ function triggerCalculate() {
     // 1. Calculate Chart Data
     const chart = QimenEngine.calculateQimenChart(inputDate, manualJu, jigongMethod);
     currentChartData = chart;
-    currentChatSessionId = null;
+    
+    // 只有非恢复状态（用户主动重排盘）才清空记忆
+    if (!isRestoring) {
+      currentChatSessionId = null;
+      qimenChatHistory = [];
+      localStorage.removeItem('qimen_chat_state');
+      const historyEl = document.getElementById("ai-chat-history");
+      if (historyEl) historyEl.innerHTML = "";
+    }
     selectedPalaceId = null; // Reset selection
 
     // 2. Render Header Banner (四柱乾坤)
@@ -931,7 +956,22 @@ function clearAiChat() {
   }
   currentChatSessionId = null;
   qimenChatHistory = []; // 清空记忆
+  localStorage.removeItem('qimen_chat_state'); // 清除本地缓存
+  const historyEl = document.getElementById("ai-chat-history");
+  if (historyEl) historyEl.innerHTML = "";
   openAiChatTab();
+}
+
+function saveChatState() {
+  if (!currentChatSessionId) return;
+  const state = {
+    date: document.getElementById("input-date").value,
+    time: document.getElementById("input-time").value,
+    sessionId: currentChatSessionId,
+    history: qimenChatHistory,
+    html: document.getElementById("ai-chat-history").innerHTML
+  };
+  localStorage.setItem('qimen_chat_state', JSON.stringify(state));
 }
 
 function openAiChatTab() {
@@ -1029,6 +1069,7 @@ async function sendAiChat() {
       btnEl.disabled = false;
       inputEl.disabled = false;
       inputEl.focus();
+      saveChatState(); // 每次对话结束后，保存整个网页的状态快照
   }
 }
 
