@@ -1,6 +1,6 @@
 const { OpenAI } = require('openai');
 require('dotenv').config();
-const config = require('../../configs/qimen_config');
+const config = require('../../_configs/qimen_config');
 
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const BASE_URL = process.env.BASE_URL || "https://api.deepseek.com";
@@ -15,7 +15,7 @@ const QIMEN_SYSTEM_PROMPT = `你是一位精通传统奇门遁甲的预测专家
 
 async function* callQimenLlm(systemPrompt, historyMessages, modelName = "deepseek-v4-flash") {
     if (!client.apiKey) {
-        yield "【系统提示】DEEPSEEK_API_KEY 未配置，请在根目录 .env 文件中设置。";
+        yield "【系统提示】DEEPSEEK_API_KEY 未配置，请在根目�?.env 文件中设置�?;
         return;
     }
 
@@ -40,13 +40,14 @@ async function* callQimenLlm(systemPrompt, historyMessages, modelName = "deepsee
         }
     } catch (error) {
         if (error.status === 401) {
-            yield "\n[授权失败] API Key 无效或未提供正确认证。";
+            yield "\n[授权失败] API Key 无效或未提供正确认证�?;
         } else if (error.status === 429) {
-            yield "\n[限流拦截] 请求过频或额度不足，请稍后重试。";
+            yield "\n[限流拦截] 请求过频或额度不足，请稍后重试�?;
         } else {
-            yield `\n[系统异常] 大模型服务返回错误: ${error.message}`;
+            yield `\n[系统异常] 大模型服务返回错�? ${error.message}`;
         }
     }
 }
 
 module.exports = { callQimenLlm, QIMEN_SYSTEM_PROMPT };
+
