@@ -1,6 +1,22 @@
-const { translateQimenBoardToMarkdown } = require('../../core/qimen/translator');
-const { callQimenLlm } = require('../../core/qimen/llmClient');
-const config = require('../../configs/qimen_config');
+const { translateQimenBoardToMarkdown } = require('../core/qimen/translator');
+const { callQimenLlm } = require('../core/qimen/llmClient');
+const config = require('../configs/qimen_config');
+
+// 方案 A: 内存单例缓存
+let globalSopCache = null;
+async function getSopContent() {
+    if (globalSopCache !== null) return globalSopCache;
+    try {
+        const fs = require('fs').promises;
+        const path = require('path');
+        const sopPath = path.join(__dirname, '../skills/qimen_sop.md');
+        globalSopCache = await fs.readFile(sopPath, 'utf-8');
+    } catch (e) {
+        console.warn("未找到 SOP 文件，降级为普通模式");
+        globalSopCache = "";
+    }
+    return globalSopCache;
+}
 
 module.exports = async function handler(req, res) {
     // 仅允许 POST 请求
@@ -20,6 +36,10 @@ module.exports = async function handler(req, res) {
 
         // 每次请求动态生成核心上下文
         const staticPanContext = translateQimenBoardToMarkdown(raw_qimen_json);
+        const sopContent = await getSopContent();
+
+        const { QIMEN_SYSTEM_PROMPT } = require('../core/qimen/llmClient');
+        const systemPrompt = `${QIMEN_SYSTEM_PROMPT}\n\n${sopContent}\n\n【当前奇门盘面基准】\n${staticPanContext}`;
         
         // 装载前端传来的历史记忆，并追加当前问题
         const dynamicHistory = history || [];
@@ -31,7 +51,7 @@ module.exports = async function handler(req, res) {
         res.setHeader('Connection', 'keep-alive');
 
         // 发送给 LLM 处理流式响应
-        const responseStream = callQimenLlm(staticPanContext, dynamicHistory, config.LLM_MODEL_DEFAULT);
+        const responseStream = callQimenLlm(systemPrompt, dynamicHistory, config.LLM_MODEL_DEFAULT);
         
         for await (const chunk of responseStream) {
             res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);

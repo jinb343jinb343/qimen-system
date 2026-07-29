@@ -12,25 +12,14 @@ const client = new OpenAI({
 
 const QIMEN_SYSTEM_PROMPT = `你是一位精通传统奇门遁甲的预测专家。你接下来的所有多轮对话和深入解答，必须严格基于用户给出的【当前奇门盘面基准】进行推演，绝对不准脱离盘面编造符号，不准顾左右而言他！\n\n【排版铁律】：禁止在你的回复中使用任何 Markdown 表格语法（即 |---| 结构）来罗列数据。所有宫位详情和符号解析，一律改用标准的“列表换行”或“粗体段落”格式来层层展开。`;
 
-const fs = require('fs');
-const path = require('path');
 
-async function* callQimenLlm(staticContext, historyMessages, modelName = "deepseek-v4-flash") {
+async function* callQimenLlm(systemPrompt, historyMessages, modelName = "deepseek-v4-flash") {
     if (!client.apiKey) {
         yield "【系统提示】DEEPSEEK_API_KEY 未配置，请在根目录 .env 文件中设置。";
         return;
     }
 
-    let sopContent = "";
-    try {
-        const sopPath = path.join(__dirname, '..', '..', 'skills', 'qimen_sop.md');
-        sopContent = fs.readFileSync(sopPath, 'utf-8');
-    } catch (e) {
-        console.warn("未找到 SOP 文件，将降级为普通对话模式。");
-    }
-
-    const systemContent = `${QIMEN_SYSTEM_PROMPT}\n\n${sopContent}\n\n【当前奇门盘面基准】\n${staticContext}`;
-    const payload = [{ role: "system", content: systemContent }];
+    const payload = [{ role: "system", content: systemPrompt }];
     payload.push(...historyMessages);
 
     const actualModel = modelName === "deepseek-v4-pro" ? "deepseek-v4-pro" : "deepseek-v4-flash";
@@ -60,4 +49,4 @@ async function* callQimenLlm(staticContext, historyMessages, modelName = "deepse
     }
 }
 
-module.exports = { callQimenLlm };
+module.exports = { callQimenLlm, QIMEN_SYSTEM_PROMPT };
