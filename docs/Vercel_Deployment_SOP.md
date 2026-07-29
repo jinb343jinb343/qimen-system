@@ -40,6 +40,11 @@
 *   **唯一解法**：去 Vercel 的 `Settings -> General` 拉到最底下，**Delete Project** 删掉项目，然后回到首页重连 GitHub 仓库一键导入。
 *   *(切记：重新导入时必须在 Environment Variables 中补填 `DEEPSEEK_API_KEY`！)*
 
+### 铁律 4：绝对禁止在跨平台脚本中破坏 UTF-8 编码 (防 500 SyntaxError 崩溃)
+*   如果使用 Windows 的 PowerShell 脚本 (如 `-replace` 命令) 去批量修改含中文字符的 `.js` 代码，**极易破坏原文件的 UTF-8 编码**，导致中文字符变成乱码，甚至吞噬相邻的引号。
+*   一旦乱码文件推上 Vercel，Node.js 引擎在解析 `chat.js` 等入口文件时，会直接抛出 `SyntaxError: Invalid or unexpected token`，导致大模型通信瞬间崩溃 (返回 500 错误)。
+*   **规范**：代码内的字符串/路径替换，必须使用安全的 IDE 或者原生 Node.js 流操作，确保文件编码永久保持纯净的 UTF-8。
+
 ---
 
 ## 三、 本地开发与更新流转
@@ -47,5 +52,6 @@
 1.  **开发与更新**：如果只是更新前台 UI，直接修改 `index.html` 和 `static_js/` 里的文件。如果更新提示词，修改 `api/_skills/qimen_sop.md`。
 2.  **推送云端**：正常的 `git add .` -> `git commit` -> `git push`。只要不破坏上述目录结构，Vercel 必然每次秒亮绿灯。
 3.  **日志审计**：如果出现连不上的情况，一定要去 Vercel 的 `Deployments` 里点开那条记录，看最下方的 `Runtime Logs`（不是 Build Logs），确认大模型秘钥是否正常工作。
+4.  **端侧防坑（乌龙警报）**：在历经重置与重构后，手机端或电脑端经常会保留**旧版的网页链接**或严重的浏览器缓存。当发现后端绿灯但前端依然报“通信中断”时，第一件事是检查当前浏览器地址栏的链接是否是最新的 Vercel Project 链接，并开启无痕模式测试。
 
 **—— 由 Antigravity 架构师签署封印 (2026.07)**
