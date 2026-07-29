@@ -1,9 +1,6 @@
 {
-  "name": "qimen-system",
-  "version": "1.0.0",
-  "description": "",
   "dependencies": {
-    "dotenv": "^17.4.2",
-    "openai": "^6.45.0"
+    "openai": "^4.45.0",
+    "dotenv": "^16.4.5"
   }
 }
