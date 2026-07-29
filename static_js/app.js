@@ -1023,7 +1023,7 @@ async function sendAiChat() {
       }
   } catch(e) {
       if (e.name !== 'AbortError') {
-          bubbleEl.innerHTML = "<span style='color:#f87171'>天机混乱，通信中断。请检查后端服务是否开启。</span>";
+          bubbleEl.innerHTML = `<span style='color:#f87171'>天机混乱，通信中断。[${e.message}]</span>`;
       }
   } finally {
       btnEl.disabled = false;
