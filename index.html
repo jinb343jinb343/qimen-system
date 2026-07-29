@@ -31,7 +31,10 @@
   <div id="auth-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(10,14,23,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:999999;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:opacity 0.5s ease;">
     <div style="background:rgba(30,41,59,0.5);border:1px solid rgba(255,255,255,0.1);padding:3rem;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.5);text-align:center;transition:transform 0.1s;">
       <h2 style="color:#e2e8f0;margin-bottom:1.5rem;font-size:1.5rem;letter-spacing:2px;font-weight:600;">[ 奇门系统·权限验证 ]</h2>
-      <input type="password" id="auth-password" placeholder="输入访问口令..." style="background:rgba(15,23,42,0.8);border:1px solid rgba(255,255,255,0.2);color:#10b981;padding:12px 20px;border-radius:8px;font-size:1.2rem;width:250px;text-align:center;outline:none;letter-spacing:5px;font-family:monospace;transition:all 0.3s;" onkeydown="if(event.key==='Enter') checkAuth()">
+      <div style="display:flex; flex-direction:column; align-items:center; gap: 1rem;">
+        <input type="password" id="auth-password" placeholder="输入访问口令..." enterkeyhint="go" style="background:rgba(15,23,42,0.8);border:1px solid rgba(255,255,255,0.2);color:#10b981;padding:12px 20px;border-radius:8px;font-size:1.2rem;width:250px;text-align:center;outline:none;letter-spacing:5px;font-family:monospace;transition:all 0.3s;" onkeydown="if(event.key==='Enter') checkAuth()">
+        <button onclick="checkAuth()" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:#10b981;padding:10px 40px;border-radius:6px;font-size:1rem;cursor:pointer;letter-spacing:4px;transition:all 0.3s;" onmouseover="this.style.background='rgba(16,185,129,0.3)'" onmouseout="this.style.background='rgba(16,185,129,0.15)'">解除封印</button>
+      </div>
       <div id="auth-error" style="color:#ef4444;margin-top:1rem;font-size:0.9rem;opacity:0;transition:opacity 0.3s;letter-spacing:1px;">指令错误，拒绝访问</div>
     </div>
   </div>
