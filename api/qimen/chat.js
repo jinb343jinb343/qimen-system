@@ -1,0 +1,51 @@
+const { translateQimenBoardToMarkdown } = require('../../core/qimen/translator');
+const { callQimenLlm } = require('../../core/qimen/llmClient');
+const config = require('../../configs/qimen_config');
+
+export default async function handler(req, res) {
+    // 仅允许 POST 请求
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
+    try {
+        // Vercel 环境下 req.body 已经被自动解析为 Object
+        const body = req.body || {};
+        const { session_id, raw_qimen_json, user_cmd, history } = body;
+
+        // 如果负载过大，物理级截断 (防恶意构造)
+        if (JSON.stringify(body).length > config.MAX_PAYLOAD_SIZE) {
+            return res.status(413).json({ error: "Payload Too Large: 请求体过大，已被系统拦截。" });
+        }
+
+        // 每次请求动态生成核心上下文
+        const staticPanContext = translateQimenBoardToMarkdown(raw_qimen_json);
+        
+        // 装载前端传来的历史记忆，并追加当前问题
+        const dynamicHistory = history || [];
+        dynamicHistory.push({ role: "user", content: user_cmd });
+
+        // 设置 SSE 响应头
+        res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+        res.setHeader('Cache-Control', 'no-cache');
+        res.setHeader('Connection', 'keep-alive');
+
+        // 发送给 LLM 处理流式响应
+        const responseStream = callQimenLlm(staticPanContext, dynamicHistory, config.LLM_MODEL_DEFAULT);
+        
+        for await (const chunk of responseStream) {
+            res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+        }
+        
+        res.write(`event: done\ndata: "[DONE]"\n\n`);
+        res.end();
+    } catch (err) {
+        console.error("Serverless Function Error:", err);
+        // 如果连接尚未发送 headers，则发送 500
+        if (!res.headersSent) {
+            res.status(500).json({ error: err.message });
+        } else {
+            res.end();
+        }
+    }
+}

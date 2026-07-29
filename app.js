@@ -5,9 +5,9 @@ let selectedPalaceId = null;
 let currentForecastMode = "academic"; // 'academic' | 'love' | 'wealth' | 'career' | 'bestPalace'
 let currentSidebarTab = "palace";      // 'palace' | 'report'
 
-// ── Angnet Export Modal Injection ──────────────────────────────
+// ── UI Styles Injection ──────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
-  injectAngnetModal();
+  injectChatStyles();
   
   // 显式绑定占断模式按钮的点击事件，增强交互健壮性
   ["academic", "love", "wealth", "career", "bestPalace"].forEach(m => {
@@ -21,97 +21,60 @@ document.addEventListener("DOMContentLoaded", () => {
   initDrawingBoard();
 });
 
-function injectAngnetModal() {
-  const modal = document.createElement("div");
-  modal.id = "angnet-modal";
-  modal.innerHTML = `
-    <div class="angnet-overlay" onclick="closeAngnetModal()"></div>
-    <div class="angnet-dialog">
-      <div class="angnet-header">
-        <div class="angnet-title">
-          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-          导出盘面参数 · 供 Angnet 解盘使用
-        </div>
-        <button class="angnet-close" onclick="closeAngnetModal()">✕</button>
-      </div>
-      <div class="angnet-hint">以下内容已包含本次排盘的全部参数，复制后直接粘贴给奇门解盘大师 Angnet 即可。</div>
-      <div class="angnet-body">
-        <textarea id="angnet-output" readonly spellcheck="false"></textarea>
-      </div>
-      <div class="angnet-footer">
-        <button class="angnet-copy-btn" id="angnet-copy-btn" onclick="copyAngnetOutput()">
-          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-          一键复制全部参数
-        </button>
-        <span id="angnet-copy-feedback" class="copy-feedback"></span>
-      </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-
-  // Inject styles
+function injectChatStyles() {
   const style = document.createElement("style");
   style.textContent = `
-    #angnet-modal { display: none; position: fixed; inset: 0; z-index: 9999; align-items: center; justify-content: center; }
-    #angnet-modal.open { display: flex; }
-    .angnet-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); }
-    .angnet-dialog {
-      position: relative; z-index: 1;
-      width: min(780px, 94vw); max-height: 88vh;
-      background: linear-gradient(135deg, #0f1a2e 0%, #1a2540 100%);
-      border: 1px solid rgba(212,175,55,0.35);
-      border-radius: 16px;
-      box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
-      display: flex; flex-direction: column; overflow: hidden;
-      animation: angnetSlideIn 0.25s ease;
+    .ai-chat-body { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 1rem 0.5rem; display: flex; flex-direction: column; gap: 1rem; height: 100%; min-width: 0; }
+    .chat-msg { display: flex; flex-direction: column; max-width: 100%; min-width: 0; }
+    .chat-msg.user { align-self: flex-end; }
+    .chat-msg.assistant { align-self: flex-start; }
+    
+    .chat-bubble h3 { font-size: 1.05rem; color: #d4af37; margin-top: 0.5rem; margin-bottom: 0.3rem; }
+    .chat-bubble h2 { font-size: 1.15rem; color: #d4af37; margin-top: 0.5rem; margin-bottom: 0.3rem; }
+    .chat-bubble li { margin-bottom: 0.2rem; margin-left: 1.2rem; display: list-item; list-style-type: disc; }
+    #chat-content-body {
+      flex: 1;
+      height: calc(100vh - 220px);
+      max-height: 800px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow-x: hidden;
     }
-    @keyframes angnetSlideIn { from { opacity:0; transform: translateY(-20px) scale(0.97); } to { opacity:1; transform: none; } }
-    .angnet-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1.1rem 1.4rem;
-      background: linear-gradient(90deg, rgba(212,175,55,0.12), transparent);
-      border-bottom: 1px solid rgba(212,175,55,0.2);
+
+    .chat-bubble {
+      padding: 0.8rem 1.1rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.6;
+      word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal; box-sizing: border-box; max-width: 100%; min-width: 0;
+      font-family: 'Noto Sans SC', sans-serif;
     }
-    .angnet-title { display: flex; align-items: center; gap: 0.5rem; color: #d4af37; font-size: 1rem; font-weight: 700; }
-    .angnet-close {
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-      color: #aaa; border-radius: 8px; width: 32px; height: 32px;
-      cursor: pointer; font-size: 14px; transition: all 0.2s;
+    .chat-msg.user .chat-bubble {
+      background: linear-gradient(135deg, #d4af37, #f0c040); color: #1a0f00;
+      border-bottom-right-radius: 2px; font-weight: 500;
     }
-    .angnet-close:hover { background: rgba(239,68,68,0.2); color: #f87171; border-color: rgba(239,68,68,0.4); }
-    .angnet-hint {
-      padding: 0.6rem 1.4rem; font-size: 0.8rem;
-      color: rgba(255,255,255,0.45); background: rgba(212,175,55,0.04);
-      border-bottom: 1px solid rgba(255,255,255,0.05);
+    .chat-msg.assistant .chat-bubble {
+      background: rgba(255,255,255,0.05); color: #e2e8f0;
+      border: 1px solid rgba(255,255,255,0.1); border-bottom-left-radius: 2px;
     }
-    .angnet-body { flex: 1; overflow: hidden; padding: 1rem 1.4rem; }
-    #angnet-output {
-      width: 100%; height: 100%; min-height: 380px; max-height: 52vh;
-      background: rgba(0,0,0,0.35); color: #e2e8f0;
-      border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-      padding: 1rem; font-family: 'Courier New', 'Noto Sans SC', monospace;
-      font-size: 0.82rem; line-height: 1.75; resize: none;
-      outline: none; box-sizing: border-box;
+    .loading-dots { display: inline-block; animation: pulse 1.5s infinite; color: #d4af37; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    
+    .ai-chat-footer {
+      display: flex; align-items: center; gap: 0.8rem; padding: 1rem 1.4rem;
+      border-top: 1px solid rgba(255,255,255,0.07); background: rgba(0,0,0,0.15);
+      margin-top: auto;
     }
-    #angnet-output:focus { border-color: rgba(212,175,55,0.4); }
-    .angnet-footer {
-      display: flex; align-items: center; gap: 1rem;
-      padding: 0.9rem 1.4rem;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      background: rgba(0,0,0,0.15);
+    #ai-chat-input {
+      flex: 1; padding: 0.8rem 1.2rem; border-radius: 24px;
+      background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;
+      font-size: 0.9rem; outline: none; transition: border-color 0.2s;
     }
-    .angnet-copy-btn {
-      display: flex; align-items: center; gap: 0.4rem;
-      padding: 0.6rem 1.4rem;
-      background: linear-gradient(135deg, #d4af37, #f0c040);
-      color: #1a0f00; font-weight: 700; font-size: 0.9rem;
-      border: none; border-radius: 10px; cursor: pointer;
-      transition: all 0.2s; box-shadow: 0 4px 14px rgba(212,175,55,0.35);
+    #ai-chat-input:focus { border-color: rgba(212,175,55,0.5); }
+    .ai-chat-send-btn {
+      padding: 0.7rem 1.5rem; border-radius: 24px; background: #d4af37; color: #1a0f00;
+      font-weight: 700; font-size: 0.9rem; border: none; cursor: pointer; transition: transform 0.1s;
     }
-    .angnet-copy-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212,175,55,0.5); }
-    .angnet-copy-btn:active { transform: scale(0.97); }
-    .copy-feedback { font-size: 0.85rem; color: #4ade80; font-weight: 600; opacity: 0; transition: opacity 0.3s; }
-    .copy-feedback.show { opacity: 1; }
+    .ai-chat-send-btn:active { transform: scale(0.95); }
+    .ai-chat-send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
   `;
   document.head.appendChild(style);
 }
@@ -166,33 +129,42 @@ function switchSidebarTab(tab) {
   // Update tabs styling
   const btnPalace = document.getElementById("tab-btn-palace");
   const btnReport = document.getElementById("tab-btn-report");
-  if (btnPalace && btnReport) {
-    if (tab === "palace") {
-      btnPalace.classList.add("active");
-      btnReport.classList.remove("active");
-    } else {
-      btnPalace.classList.remove("active");
-      btnReport.classList.add("active");
-    }
+  const btnChat = document.getElementById("tab-btn-chat");
+  if (btnPalace && btnReport && btnChat) {
+    btnPalace.classList.toggle("active", tab === "palace");
+    btnReport.classList.toggle("active", tab === "report");
+    btnChat.classList.toggle("active", tab === "chat");
   }
 
   // Update sidebar content display
   const headerSection = document.getElementById("interp-header-section");
   const contentBody = document.getElementById("interp-content-body");
+  const chatBody = document.getElementById("chat-content-body");
 
   if (tab === "palace") {
     if (headerSection) headerSection.style.display = "flex";
+    if (contentBody) contentBody.style.display = "block";
+    if (chatBody) chatBody.style.display = "none";
     if (selectedPalaceId) {
       selectPalace(selectedPalaceId);
     } else {
       resetSidebar();
     }
-  } else {
+  } else if (tab === "report") {
     if (headerSection) headerSection.style.display = "none";
+    if (contentBody) contentBody.style.display = "block";
+    if (chatBody) chatBody.style.display = "none";
     if (currentChartData) {
       renderForecastReport(currentChartData);
     } else {
       contentBody.innerHTML = `<div class="interp-placeholder"><p>请先进行排盘计算以生成运筹报告。</p></div>`;
+    }
+  } else if (tab === "chat") {
+    if (headerSection) headerSection.style.display = "none";
+    if (contentBody) contentBody.style.display = "none";
+    if (chatBody) chatBody.style.display = "flex";
+    if (!currentChartData) {
+      document.getElementById("ai-chat-history").innerHTML = `<div class="chat-msg assistant"><div class="chat-bubble">请先进行排盘计算，然后再进行解盘。</div></div>`;
     }
   }
 }
@@ -210,6 +182,7 @@ function useCurrentTime() {
   const now = new Date();
   document.getElementById("input-date").value = formatLocalDate(now);
   document.getElementById("input-time").value = formatLocalTime(now);
+  triggerCalculate();
 }
 
 /**
@@ -255,6 +228,7 @@ function triggerCalculate() {
     // 1. Calculate Chart Data
     const chart = QimenEngine.calculateQimenChart(inputDate, manualJu, jigongMethod);
     currentChartData = chart;
+    currentChatSessionId = null;
     selectedPalaceId = null; // Reset selection
 
     // 2. Render Header Banner (四柱乾坤)
@@ -415,6 +389,8 @@ function triggerCalculate() {
     // 6. Reset or render sidebar depending on the active tab
     if (currentSidebarTab === "report") {
       renderForecastReport(chart);
+    } else if (currentSidebarTab === "chat") {
+      openAiChatTab();
     } else {
       if (selectedPalaceId) {
         selectPalace(selectedPalaceId);
@@ -941,44 +917,172 @@ function getElementColorClass(name) {
 }
 
 // ══════════════════════════════════════════════════════════════
-// ANGNET EXPORT — 导出盘面参数供解盘大师使用
+// AI CHAT INTERFACE — 赛博大仙打字机流式对话
 // ══════════════════════════════════════════════════════════════
 
-/**
- * Opens the Angnet export modal with the full structured chart text
- */
-function openAngnetExport() {
+let currentChatSessionId = null;
+let aiChatController = null;
+let qimenChatHistory = []; // 云原生前端记忆中枢
+
+function clearAiChat() {
+  if (aiChatController) {
+    aiChatController.abort();
+    aiChatController = null;
+  }
+  currentChatSessionId = null;
+  qimenChatHistory = []; // 清空记忆
+  openAiChatTab();
+}
+
+function openAiChatTab() {
+  switchSidebarTab('chat');
   if (!currentChartData) {
-    alert("请先排盘后再导出参数！");
+    alert("请先排盘后再请求解盘！");
     return;
   }
-  const text = buildAngnetText(currentChartData);
-  document.getElementById("angnet-output").value = text;
-  document.getElementById("angnet-modal").classList.add("open");
+  
+  if (!currentChatSessionId) {
+    currentChatSessionId = "session_" + Date.now();
+    const pad = (num) => String(num).padStart(2, "0");
+    const d = currentChartData.dateTime;
+    const timeStr = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    
+    document.getElementById("ai-chat-history").innerHTML = `
+      <div class="chat-msg assistant">
+        <div class="chat-bubble">您好，我是您的AI解盘助理。我已经重新读取了最新的排盘图纸（${timeStr}，${currentChartData.dunType}${currentChartData.juNumber}局）。先前的对话已清空，请问您想测算什么事情？</div>
+      </div>
+    `;
+  }
+  document.getElementById("ai-chat-input").value = "";
+  setTimeout(() => document.getElementById("ai-chat-input").focus(), 100);
 }
 
-function closeAngnetModal() {
-  document.getElementById("angnet-modal").classList.remove("open");
+async function sendAiChat() {
+  const inputEl = document.getElementById("ai-chat-input");
+  const text = inputEl.value.trim();
+  if (!text) return;
+
+  const historyEl = document.getElementById("ai-chat-history");
+  
+  // 添加用户消息
+  const userMsgEl = document.createElement("div");
+  userMsgEl.className = "chat-msg user";
+  userMsgEl.innerHTML = `<div class="chat-bubble">${text.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</div>`;
+  historyEl.appendChild(userMsgEl);
+  
+  inputEl.value = "";
+  historyEl.scrollTop = historyEl.scrollHeight;
+  
+  // 添加大仙加载占位
+  const aiMsgEl = document.createElement("div");
+  aiMsgEl.className = "chat-msg assistant";
+  const bubbleEl = document.createElement("div");
+  bubbleEl.className = "chat-bubble";
+  bubbleEl.innerHTML = "<span class='loading-dots'>思考中...</span>";
+  aiMsgEl.appendChild(bubbleEl);
+  historyEl.appendChild(aiMsgEl);
+  historyEl.scrollTop = historyEl.scrollHeight;
+  
+  const btnEl = document.querySelector(".ai-chat-send-btn");
+  btnEl.disabled = true;
+  inputEl.disabled = true;
+
+  try {
+      const rawQimenJson = buildAngnetText(currentChartData);
+      let aiFullResponse = "";
+      
+      const parseMarkdown = (text) => {
+        let html = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        html = html.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+        html = html.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+        html = html.replace(/^# (.*$)/gim, '<h2>$1</h2>');
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/^\s*-\s+(.*)/gim, '<li>$1</li>');
+        html = html.split('\n').map(line => {
+          if (line.match(/^<(h2|h3|li)/)) return line;
+          return line + '<br>';
+        }).join('');
+        return html.replace(/(<br>)*$/, "");
+      };
+      
+      await streamQimenChat(currentChatSessionId, rawQimenJson, text, (chunk) => {
+          if (bubbleEl.querySelector('.loading-dots')) {
+              bubbleEl.innerHTML = "";
+          }
+          aiFullResponse += chunk;
+          bubbleEl.innerHTML = parseMarkdown(aiFullResponse);
+          historyEl.scrollTop = historyEl.scrollHeight;
+      });
+
+      // 对话完成后，更新滑动窗口记忆
+      qimenChatHistory.push({ role: "user", content: text });
+      qimenChatHistory.push({ role: "assistant", content: aiFullResponse });
+      // 阀门：仅保留最近 3 轮（6句话）
+      if (qimenChatHistory.length > 6) {
+          qimenChatHistory = qimenChatHistory.slice(qimenChatHistory.length - 6);
+      }
+  } catch(e) {
+      if (e.name !== 'AbortError') {
+          bubbleEl.innerHTML = "<span style='color:#f87171'>天机混乱，通信中断。请检查后端服务是否开启。</span>";
+      }
+  } finally {
+      btnEl.disabled = false;
+      inputEl.disabled = false;
+      inputEl.focus();
+  }
 }
 
-function copyAngnetOutput() {
-  const ta = document.getElementById("angnet-output");
-  ta.select();
-  ta.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(ta.value).then(() => {
-    showCopyFeedback();
-  }).catch(() => {
-    // Fallback for non-HTTPS
-    document.execCommand("copy");
-    showCopyFeedback();
-  });
-}
+async function streamQimenChat(sessionId, rawQimenJson, userCmd, onChunk) {
+    const payload = {
+        session_id: sessionId,
+        raw_qimen_json: rawQimenJson,
+        user_cmd: userCmd,
+        history: qimenChatHistory
+    };
 
-function showCopyFeedback() {
-  const el = document.getElementById("angnet-copy-feedback");
-  el.textContent = "✓ 已复制到剪贴板！";
-  el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 2500);
+    aiChatController = new AbortController();
+
+    try {
+        const response = await fetch('/api/qimen/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            signal: aiChatController.signal
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: 后端接口未响应`);
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder('utf-8');
+        let buffer = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            
+            buffer += decoder.decode(value, { stream: true });
+            let lines = buffer.split('\n');
+            buffer = lines.pop(); // 保留最后一行未完整的数据
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    const dataStr = line.slice(6);
+                    if (dataStr === '"[DONE]"' || dataStr === "[DONE]") return; 
+                    
+                    try {
+                        const parsed = JSON.parse(dataStr);
+                        if (parsed.content) {
+                            onChunk(parsed.content);
+                        }
+                    } catch (e) { }
+                }
+            }
+        }
+    } catch (error) {
+        throw error;
+    }
 }
 
 /**
