@@ -79,15 +79,20 @@ module.exports = async function handler(req, res) {
             };
         }
 
-        // ==========================================
-        // Step 2: Diagnosis Phase - 诊断链生成 (流式输出给前端)
-        // ==========================================
-        let diagSkillsText = "";
-        for (const skill of routerData.PIPELINE.filter(s => s.startsWith('SKILL_D'))) {
-            diagSkillsText += await getSkillContent(skill, 'diagnosis') + "\n\n";
-        }
+        const isFirstTurn = !history || history.length === 0;
+        let diagnosisReport = "";
+        const dynamicHistory = history || [];
 
-        const diagSystemPrompt = `你是一位高阶奇门遁甲分析师。你的当前任务场景是：${routerData.SCENE_TAG}。
+        // ==========================================
+        // Step 2: Diagnosis Phase - 诊断链生成 (仅首轮执行)
+        // ==========================================
+        if (isFirstTurn) {
+            let diagSkillsText = "";
+            for (const skill of routerData.PIPELINE.filter(s => s.startsWith('SKILL_D'))) {
+                diagSkillsText += await getSkillContent(skill, 'diagnosis') + "\n\n";
+            }
+
+            const diagSystemPrompt = `你是一位高阶奇门遁甲分析师。你的当前任务场景是：${routerData.SCENE_TAG}。
 请严格按照以下诊断逻辑步骤进行分析推演，并最终严格按照【SKILL_D04】的格式输出报告：
 
 ${diagSkillsText}
@@ -95,44 +100,65 @@ ${diagSkillsText}
 【当前奇门盘面基准】
 ${staticPanContext}
 `;
-        
-        const dynamicHistory = history || [];
-        dynamicHistory.push({ role: "user", content: user_cmd });
-
-        let diagnosisReport = "";
-        const diagStream = callQimenLlm(diagSystemPrompt, dynamicHistory, config.LLM_MODEL_DEFAULT);
-        
-        for await (const chunk of diagStream) {
-            diagnosisReport += chunk;
-            res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+            
+            const firstTurnHistory = [{ role: "user", content: user_cmd }];
+            const diagStream = callQimenLlm(diagSystemPrompt, firstTurnHistory, config.LLM_MODEL_DEFAULT);
+            
+            for await (const chunk of diagStream) {
+                diagnosisReport += chunk;
+                res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+            }
+            // 将本次问答加入上下文，供后续追问或化解使用
+            dynamicHistory.push({ role: "user", content: user_cmd });
+            dynamicHistory.push({ role: "assistant", content: diagnosisReport });
+        } else {
+            // 是追问，提取历史记录中的最后一次诊断结论作为上下文摘要
+            diagnosisReport = dynamicHistory.filter(m => m.role === 'assistant').pop()?.content || "";
+            dynamicHistory.push({ role: "user", content: user_cmd });
         }
 
         // ==========================================
-        // Step 3: Remediation Phase - 化解链生成 (若需要，流式输出)
+        // Step 3: Remediation Phase 或 Detail Q&A Phase (追问分流)
         // ==========================================
         if (routerData.NEED_REMEDIATION) {
-            // 输出华丽的分割线
-            res.write(`data: ${JSON.stringify({ content: '\n\n---\n\n# 🛡️ 破局与空间化解方案\n\n' })}\n\n`);
+            // 输出华丽的分割线 (追问时也加上，如果是化解的话)
+            res.write(`data: ${JSON.stringify({ content: '\n\n---\n\n# 🛡️ 首席破局与空间化解方案\n\n' })}\n\n`);
             
             let remSkillsText = "";
-            for (const skill of routerData.PIPELINE.filter(s => s.startsWith('SKILL_R'))) {
+            // 如果 Router 没给 R 系列，兜底给 R00-R04 (主要为了防止追问时 Router 没带 R 列表)
+            const rSkills = routerData.PIPELINE.filter(s => s.startsWith('SKILL_R'));
+            const finalRSkills = rSkills.length > 0 ? rSkills : ["SKILL_R00", "SKILL_R01", "SKILL_R02", "SKILL_R03", "SKILL_R04"];
+
+            for (const skill of finalRSkills) {
                 remSkillsText += await getSkillContent(skill, 'remediation') + "\n\n";
             }
 
             const remSystemPrompt = `你是一位高阶奇门遁甲化解策略师。
-基于以下刚刚得出的《诊断报告》，请严格按照指定的化解策略库，为用户生成落地执行的化解与物理空间风水调整方案。
-⚠️禁止复述诊断报告内容，直接输出具体的行动战术和“拆补移”实操方案！
+基于以下前置的《诊断报告》上下文，请严格按照指定的化解策略库，为用户生成唯一最优的破局与物理空间调整方案。
+⚠️禁止重新输出“一、二、三”的诊断报告，直接输出具体的化解战术和“拆补移”实操方案！
 
 【化解策略指令库】
 ${remSkillsText}
 `;
-            // 上下文截断与组装：只传递 Diagnosis Report，不传递冗长的原始盘面和历史
             const remHistory = [
-                { role: "user", content: `用户的初始问题：${user_cmd}\n\n【前置诊断结论摘要】\n${diagnosisReport}\n\n请直接输出化解动作与物理空间调理方案。` }
+                { role: "user", content: `用户的当前提问：${user_cmd}\n\n【前置诊断结论摘要】\n${diagnosisReport}\n\n请直接输出化解动作与物理空间调理方案。` }
             ];
 
             const remStream = callQimenLlm(remSystemPrompt, remHistory, config.LLM_MODEL_DEFAULT);
             for await (const chunk of remStream) {
+                res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+            }
+        } else if (!isFirstTurn) {
+            // 追问细节，不需要化解，直接基于上下文问答
+            const qaSystemPrompt = `你是一位高阶奇门遁甲分析师。这是用户的追问环节。
+请基于现有的盘面和之前的诊断上下文，直接、简炼、干脆地回答用户的具体追问（2-3段即可）。
+⚠️严禁重新输出完整的《时空切片诊断报告》或化解方案！
+
+【当前奇门盘面基准】
+${staticPanContext}
+`;
+            const qaStream = callQimenLlm(qaSystemPrompt, dynamicHistory, config.LLM_MODEL_DEFAULT);
+            for await (const chunk of qaStream) {
                 res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
             }
         }
