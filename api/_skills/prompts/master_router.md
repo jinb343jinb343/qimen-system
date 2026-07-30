@@ -69,7 +69,10 @@
     "SKILL_D02", 
     "SKILL_D03", 
     "SKILL_D04",
+    "SKILL_R00",
+    "SKILL_R01",
     "SKILL_R02", 
+    "SKILL_R03",
     "SKILL_R04"
   ]
 }
