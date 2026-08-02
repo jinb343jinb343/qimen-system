@@ -9,8 +9,8 @@
         return false;
       }
       const div = document.createElement('div');
-      div.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:#ef4444;color:#fff;padding:1rem;z-index:99999;font-family:monospace;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.5);line-height:1.5;';
-      div.innerHTML = '<strong>页面脚本报错 (Script Error):</strong><br>' + message + '<br><small>文件: ' + source + ' (第 ' + lineno + ' 行)</small>';
+      div.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);width:auto;max-width:80%;background:rgba(15,23,42,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(239,68,68,0.5);box-shadow:0 0 15px rgba(239,68,68,0.3);color:#f8fafc;padding:1rem 1.5rem;border-radius:12px;z-index:99999;font-family:monospace;font-size:14px;line-height:1.5;opacity:1;transition:opacity 0.5s ease;';
+      div.innerHTML = '<strong style="color:#ef4444;font-size:1.1em;letter-spacing:1px;">⚠ 系统异常 (Script Error)</strong><br><span style="color:#94a3b8;margin-top:0.5rem;display:inline-block;">' + message + '</span><br><small style="color:#64748b;margin-top:0.25rem;display:inline-block;">[' + source + ' : ' + lineno + ']</small>';
       if (document.body) {
         document.body.insertBefore(div, document.body.firstChild);
       } else {
@@ -18,6 +18,10 @@
           document.body.insertBefore(div, document.body.firstChild);
         });
       }
+      setTimeout(() => {
+        div.style.opacity = '0';
+        setTimeout(() => div.remove(), 500);
+      }, 5000);
       return false;
     };
   </script>
@@ -25,62 +29,9 @@
   <title>奇门遁甲智能排盘系统</title>
   <meta name="description" content="一个高精度的网页端奇门遁甲自动排盘系统。只需输入公历时间，系统即可自动进行太阳黄经计算、推算节气、排出天盘、地盘、八门、九星、八神、旬空及驿马，并提供详细的宫位克应合局解析。">
   <link rel="stylesheet" href="index.css">
+  <link rel="stylesheet" href="theme-neu.css">
 </head>
 <body>
-  <!-- 赛博风密码门卫系统 -->
-  <div id="auth-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(10,14,23,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:999999;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:opacity 0.5s ease;">
-    <div style="background:rgba(30,41,59,0.5);border:1px solid rgba(255,255,255,0.1);padding:3rem;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.5);text-align:center;transition:transform 0.1s;">
-      <h2 style="color:#e2e8f0;margin-bottom:1.5rem;font-size:1.5rem;letter-spacing:2px;font-weight:600;">[ 奇门系统·权限验证 ]</h2>
-      <div style="display:flex; flex-direction:column; align-items:center; gap: 1rem;">
-        <input type="password" id="auth-password" placeholder="输入访问口令..." enterkeyhint="go" style="background:rgba(15,23,42,0.8);border:1px solid rgba(255,255,255,0.2);color:#10b981;padding:12px 20px;border-radius:8px;font-size:1.2rem;width:250px;text-align:center;outline:none;letter-spacing:5px;font-family:monospace;transition:all 0.3s;" onkeydown="if(event.key==='Enter') checkAuth()">
-        <button onclick="checkAuth()" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:#10b981;padding:10px 40px;border-radius:6px;font-size:1rem;cursor:pointer;letter-spacing:4px;transition:all 0.3s;" onmouseover="this.style.background='rgba(16,185,129,0.3)'" onmouseout="this.style.background='rgba(16,185,129,0.15)'">解除封印</button>
-      </div>
-      <div id="auth-error" style="color:#ef4444;margin-top:1rem;font-size:0.9rem;opacity:0;transition:opacity 0.3s;letter-spacing:1px;">指令错误，拒绝访问</div>
-    </div>
-  </div>
-  <script>
-    // 门禁指令
-    const SECRET_KEY = "jinb343";
-    
-    document.addEventListener("DOMContentLoaded", () => {
-      const savedKey = localStorage.getItem('qimen_pass');
-      const overlay = document.getElementById('auth-overlay');
-      if(savedKey === SECRET_KEY) {
-        overlay.style.display = 'none'; // 已授权，揭开面纱
-      } else {
-        setTimeout(() => document.getElementById('auth-password').focus(), 100);
-      }
-    });
-
-    function checkAuth() {
-      const input = document.getElementById('auth-password');
-      const errorMsg = document.getElementById('auth-error');
-      if(input.value === SECRET_KEY) {
-        // 验证通过，烙印通行证
-        localStorage.setItem('qimen_pass', SECRET_KEY);
-        const overlay = document.getElementById('auth-overlay');
-        overlay.style.opacity = '0';
-        setTimeout(() => overlay.style.display = 'none', 500);
-      } else {
-        // 验证失败，警告动画
-        input.style.borderColor = '#ef4444';
-        errorMsg.style.opacity = '1';
-        
-        // 颤抖反馈
-        const box = input.parentElement;
-        box.style.transform = 'translateX(-10px)';
-        setTimeout(() => box.style.transform = 'translateX(10px)', 50);
-        setTimeout(() => box.style.transform = 'translateX(-10px)', 100);
-        setTimeout(() => box.style.transform = 'translateX(0)', 150);
-        
-        setTimeout(() => {
-          input.style.borderColor = 'rgba(255,255,255,0.2)';
-          errorMsg.style.opacity = '0';
-          input.value = '';
-        }, 2000);
-      }
-    }
-  </script>
   <div class="container">
     <!-- Header -->
     <header class="animate-fade-in">
@@ -246,101 +197,93 @@
         
         <!-- Palace 4 (巽四宫 - Top Left) -->
         <div class="palace-card" id="palace-4" onclick="selectPalace(4)">
+          <div class="palace-meta-bg">
+            <span class="palace-gua">巽4</span>
+            <div class="palace-name">东南</div>
+          </div>
           <div class="palace-top">
             <span class="palace-spirit" id="spirit-4">--</span>
             <div class="palace-badges" id="badges-4"></div>
           </div>
           <div class="palace-mid">
-            <span class="palace-star" id="star-4">--</span>
-            <div class="palace-stems" style="align-items: flex-end;">
-              <span class="tian-stem" id="tian-4">--</span>
-              <span class="di-stem" id="di-4">--</span>
+            <div class="palace-star-group">
+              <span class="an-stem" id="an-4">--</span>
+              <span class="palace-star" id="star-4">--</span>
             </div>
+            <div class="tian-stem-wrapper" id="tian-4">--</div>
           </div>
           <div class="palace-bottom">
-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-              <span class="palace-door" id="door-4">--</span>
-              <span class="an-stem" id="an-4">--</span>
-            </div>
-            <div class="palace-meta">
-              <span class="palace-gua">巽四</span>
-              <div class="palace-name">东南</div>
-            </div>
+            <span class="palace-door" id="door-4">--</span>
+            <div class="di-stem-wrapper" id="di-4">--</div>
           </div>
         </div>
 
         <!-- Palace 9 (离九宫 - Top Middle) -->
         <div class="palace-card" id="palace-9" onclick="selectPalace(9)">
+          <div class="palace-meta-bg">
+            <span class="palace-gua">离9</span>
+            <div class="palace-name">正南</div>
+          </div>
           <div class="palace-top">
             <span class="palace-spirit" id="spirit-9">--</span>
             <div class="palace-badges" id="badges-9"></div>
           </div>
           <div class="palace-mid">
-            <span class="palace-star" id="star-9">--</span>
-            <div class="palace-stems" style="align-items: flex-end;">
-              <span class="tian-stem" id="tian-9">--</span>
-              <span class="di-stem" id="di-9">--</span>
+            <div class="palace-star-group">
+              <span class="an-stem" id="an-9">--</span>
+              <span class="palace-star" id="star-9">--</span>
             </div>
+            <div class="tian-stem-wrapper" id="tian-9">--</div>
           </div>
           <div class="palace-bottom">
-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-              <span class="palace-door" id="door-9">--</span>
-              <span class="an-stem" id="an-9">--</span>
-            </div>
-            <div class="palace-meta">
-              <span class="palace-gua">离九</span>
-              <div class="palace-name">正南</div>
-            </div>
+            <span class="palace-door" id="door-9">--</span>
+            <div class="di-stem-wrapper" id="di-9">--</div>
           </div>
         </div>
 
         <!-- Palace 2 (坤二宫 - Top Right) -->
         <div class="palace-card" id="palace-2" onclick="selectPalace(2)">
+          <div class="palace-meta-bg">
+            <span class="palace-gua">坤2</span>
+            <div class="palace-name">西南</div>
+          </div>
           <div class="palace-top">
             <span class="palace-spirit" id="spirit-2">--</span>
             <div class="palace-badges" id="badges-2"></div>
           </div>
           <div class="palace-mid">
-            <span class="palace-star" id="star-2">--</span>
-            <div class="palace-stems" style="align-items: flex-end;">
-              <span class="tian-stem" id="tian-2">--</span>
-              <span class="di-stem" id="di-2">--</span>
+            <div class="palace-star-group">
+              <span class="an-stem" id="an-2">--</span>
+              <span class="palace-star" id="star-2">--</span>
             </div>
+            <div class="tian-stem-wrapper" id="tian-2">--</div>
           </div>
           <div class="palace-bottom">
-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-              <span class="palace-door" id="door-2">--</span>
-              <span class="an-stem" id="an-2">--</span>
-            </div>
-            <div class="palace-meta">
-              <span class="palace-gua">坤二</span>
-              <div class="palace-name">西南</div>
-            </div>
+            <span class="palace-door" id="door-2">--</span>
+            <div class="di-stem-wrapper" id="di-2">--</div>
           </div>
         </div>
 
         <!-- Palace 3 (震三宫 - Middle Left) -->
         <div class="palace-card" id="palace-3" onclick="selectPalace(3)">
+          <div class="palace-meta-bg">
+            <span class="palace-gua">震3</span>
+            <div class="palace-name">正东</div>
+          </div>
           <div class="palace-top">
             <span class="palace-spirit" id="spirit-3">--</span>
             <div class="palace-badges" id="badges-3"></div>
           </div>
           <div class="palace-mid">
-            <span class="palace-star" id="star-3">--</span>
-            <div class="palace-stems" style="align-items: flex-end;">
-              <span class="tian-stem" id="tian-3">--</span>
-              <span class="di-stem" id="di-3">--</span>
+            <div class="palace-star-group">
+              <span class="an-stem" id="an-3">--</span>
+              <span class="palace-star" id="star-3">--</span>
             </div>
+            <div class="tian-stem-wrapper" id="tian-3">--</div>
           </div>
           <div class="palace-bottom">
-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-              <span class="palace-door" id="door-3">--</span>
-              <span class="an-stem" id="an-3">--</span>
-            </div>
-            <div class="palace-meta">
-              <span class="palace-gua">震三</span>
-              <div class="palace-name">正东</div>
-            </div>
+            <span class="palace-door" id="door-3">--</span>
+            <div class="di-stem-wrapper" id="di-3">--</div>
           </div>
         </div>
 
@@ -353,101 +296,93 @@
 
         <!-- Palace 7 (兑七宫 - Middle Right) -->
         <div class="palace-card" id="palace-7" onclick="selectPalace(7)">
+          <div class="palace-meta-bg">
+            <span class="palace-gua">兑7</span>
+            <div class="palace-name">正西</div>
+          </div>
           <div class="palace-top">
             <span class="palace-spirit" id="spirit-7">--</span>
             <div class="palace-badges" id="badges-7"></div>
           </div>
           <div class="palace-mid">
-            <span class="palace-star" id="star-7">--</span>
-            <div class="palace-stems" style="align-items: flex-end;">
-              <span class="tian-stem" id="tian-7">--</span>
-              <span class="di-stem" id="di-7">--</span>
+            <div class="palace-star-group">
+              <span class="an-stem" id="an-7">--</span>
+              <span class="palace-star" id="star-7">--</span>
             </div>
+            <div class="tian-stem-wrapper" id="tian-7">--</div>
           </div>
           <div class="palace-bottom">
-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-              <span class="palace-door" id="door-7">--</span>
-              <span class="an-stem" id="an-7">--</span>
-            </div>
-            <div class="palace-meta">
-              <span class="palace-gua">兑七</span>
-              <div class="palace-name">正西</div>
-            </div>
+            <span class="palace-door" id="door-7">--</span>
+            <div class="di-stem-wrapper" id="di-7">--</div>
           </div>
         </div>
 
         <!-- Palace 8 (艮八宫 - Bottom Left) -->
         <div class="palace-card" id="palace-8" onclick="selectPalace(8)">
+          <div class="palace-meta-bg">
+            <span class="palace-gua">艮8</span>
+            <div class="palace-name">东北</div>
+          </div>
           <div class="palace-top">
             <span class="palace-spirit" id="spirit-8">--</span>
             <div class="palace-badges" id="badges-8"></div>
           </div>
           <div class="palace-mid">
-            <span class="palace-star" id="star-8">--</span>
-            <div class="palace-stems" style="align-items: flex-end;">
-              <span class="tian-stem" id="tian-8">--</span>
-              <span class="di-stem" id="di-8">--</span>
+            <div class="palace-star-group">
+              <span class="an-stem" id="an-8">--</span>
+              <span class="palace-star" id="star-8">--</span>
             </div>
+            <div class="tian-stem-wrapper" id="tian-8">--</div>
           </div>
           <div class="palace-bottom">
-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-              <span class="palace-door" id="door-8">--</span>
-              <span class="an-stem" id="an-8">--</span>
-            </div>
-            <div class="palace-meta">
-              <span class="palace-gua">艮八</span>
-              <div class="palace-name">东北</div>
-            </div>
+            <span class="palace-door" id="door-8">--</span>
+            <div class="di-stem-wrapper" id="di-8">--</div>
           </div>
         </div>
 
         <!-- Palace 1 (坎一宫 - Bottom Middle) -->
         <div class="palace-card" id="palace-1" onclick="selectPalace(1)">
+          <div class="palace-meta-bg">
+            <span class="palace-gua">坎1</span>
+            <div class="palace-name">正北</div>
+          </div>
           <div class="palace-top">
             <span class="palace-spirit" id="spirit-1">--</span>
             <div class="palace-badges" id="badges-1"></div>
           </div>
           <div class="palace-mid">
-            <span class="palace-star" id="star-1">--</span>
-            <div class="palace-stems" style="align-items: flex-end;">
-              <span class="tian-stem" id="tian-1">--</span>
-              <span class="di-stem" id="di-1">--</span>
+            <div class="palace-star-group">
+              <span class="an-stem" id="an-1">--</span>
+              <span class="palace-star" id="star-1">--</span>
             </div>
+            <div class="tian-stem-wrapper" id="tian-1">--</div>
           </div>
           <div class="palace-bottom">
-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-              <span class="palace-door" id="door-1">--</span>
-              <span class="an-stem" id="an-1">--</span>
-            </div>
-            <div class="palace-meta">
-              <span class="palace-gua">坎一</span>
-              <div class="palace-name">正北</div>
-            </div>
+            <span class="palace-door" id="door-1">--</span>
+            <div class="di-stem-wrapper" id="di-1">--</div>
           </div>
         </div>
 
         <!-- Palace 6 (乾六宫 - Bottom Right) -->
         <div class="palace-card" id="palace-6" onclick="selectPalace(6)">
+          <div class="palace-meta-bg">
+            <span class="palace-gua">乾6</span>
+            <div class="palace-name">西北</div>
+          </div>
           <div class="palace-top">
             <span class="palace-spirit" id="spirit-6">--</span>
             <div class="palace-badges" id="badges-6"></div>
           </div>
           <div class="palace-mid">
-            <span class="palace-star" id="star-6">--</span>
-            <div class="palace-stems" style="align-items: flex-end;">
-              <span class="tian-stem" id="tian-6">--</span>
-              <span class="di-stem" id="di-6">--</span>
+            <div class="palace-star-group">
+              <span class="an-stem" id="an-6">--</span>
+              <span class="palace-star" id="star-6">--</span>
             </div>
+            <div class="tian-stem-wrapper" id="tian-6">--</div>
           </div>
           <div class="palace-bottom">
-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-              <span class="palace-door" id="door-6">--</span>
-              <span class="an-stem" id="an-6">--</span>
-            </div>
-            <div class="palace-meta">
-              <span class="palace-gua">乾六</span>
-              <div class="palace-name">西北</div>
-            </div>
+            <span class="palace-door" id="door-6">--</span>
+            <div class="di-stem-wrapper" id="di-6">--</div>
           </div>
         </div>
 

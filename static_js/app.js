@@ -347,16 +347,32 @@ function triggerCalculate(isRestoring = false) {
         starLookup = palaceData.star.split("+")[0];
       }
       const isZhiFuStar = chart.zhifuStar && (palaceData.star === chart.zhifuStar || palaceData.star.includes(chart.zhifuStar));
-      starEl.className = "palace-star " + (isZhiFuStar ? "star-zhifu" : "");
+      starEl.className = "palace-star"; // 取消全局高亮
       
       let starText = palaceData.star;
+      
+      // 还原经典排版，双星同行并做值符颜色隔离
+      if (starText.includes("+")) {
+        const [s1, s2] = starText.split("+");
+        let html1 = s1.replace('天', '');
+        let html2 = s2.replace('天', '');
+        
+        if (s1 === chart.zhifuStar) html1 = `<span class="star-zhifu">${html1}</span>`;
+        if (s2 === chart.zhifuStar) html2 = `<span class="star-zhifu">${html2}</span>`;
+        
+        starText = `${html1}${html2}`;
+      } else {
+        if (isZhiFuStar) {
+          starText = `<span class="star-zhifu">${starText}</span>`;
+        }
+      }
 
       if (isZhiFuStar) {
-        starText += `<span class="badge-tag tag-zhifu">符</span>`;
+        starText += `<span class="badge-tag tag-zhifu" style="display:inline-block; margin-left:0.2rem; transform: scale(0.9);">符</span>`;
       }
       const starWang = QimenEngine.getStarWang(palaceData.star, chart.monthBranchIdx);
       if (starWang) {
-        starText += `<span class="star-wang-text star-stage-${starWang}">(${starWang})</span>`;
+        starText += `<span class="star-wang-text star-stage-${starWang}" style="display:inline-block; margin-left:0.2rem;">(${starWang})</span>`;
       }
       starEl.innerHTML = starText;
 
@@ -403,7 +419,7 @@ function triggerCalculate(isRestoring = false) {
       // Render An Gan (暗干)
       const anEl = document.getElementById(`an-${p}`);
       if (anEl) {
-        anEl.textContent = "暗" + palaceData.anGanStem;
+        anEl.innerHTML = palaceData.anGanStem || "";
         anEl.className = "an-stem";
       }
     }
@@ -880,49 +896,58 @@ function getStemColorClass(stem) {
 function formatStemWithChangSheng(stem, palaceId) {
   if (!stem || palaceId === 5) return stem;
   
+  const shortCsMap = {
+    '长生':'生', '沐浴':'沐', '冠带':'冠', '临官':'临', '帝旺':'旺',
+    '衰':'衰', '病':'病', '死':'死', '墓':'墓', '绝':'绝', '胎':'胎', '养':'养'
+  };
+
   const getCSForSingle = (s) => {
     const branches = QimenEngine.PALACE_BRANCHES[palaceId];
     if (!branches) return "";
     const map = QimenEngine.CHANG_SHENG_MAP[s];
     if (!map) return "";
-    return branches.map(b => map[b] || "").filter(Boolean).join("/");
+    let csArr = branches.map(b => {
+      let fullCs = map[b] || "";
+      return shortCsMap[fullCs] || fullCs;
+    }).filter(Boolean);
+    // 去重，合并寄宫干带来的相同长生
+    csArr = [...new Set(csArr)];
+    return csArr.join("");
   };
   
-  const processSingle = (s) => {
+  const processSingleData = (s) => {
     const cs = getCSForSingle(s);
     const isRuMu = QimenEngine.checkRuMu(s, palaceId);
     const isJiXing = QimenEngine.checkJiXing(s, palaceId);
     
     let stemClass = "stem-normal";
-    if (isJiXing) {
-      stemClass = "stem-jixing";
-    } else if (isRuMu) {
-      stemClass = "stem-rumu";
-    }
+    let statusDots = "";
+    if (isJiXing) stemClass = "stem-jixing";
+    else if (isRuMu) stemClass = "stem-rumu";
     
-    const csHtml = cs ? `<span class="cs-text" style="margin-left: 0; margin-bottom: 2px; display: block; text-align: center; line-height: 1;">${cs}</span>` : "";
+    if (isRuMu) statusDots += `<span class="stem-status status-rumu" title="入墓"></span>`;
+    if (isJiXing) statusDots += `<span class="stem-status status-jixing" title="击刑"></span>`;
     
-    let stemWrapper = `<span class="${stemClass}">${s}</span>`;
-    if (isRuMu) {
-      stemWrapper += `<span class="badge-tag tag-rumu">墓</span>`;
-    }
-    if (isJiXing) {
-      stemWrapper += `<span class="badge-tag tag-jixing">刑</span>`;
-    }
-    
-    return `<div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-end; vertical-align: bottom;">
-      ${csHtml}
-      <div style="display: inline-flex; align-items: center;">${stemWrapper}</div>
-    </div>`;
+    return { char: s, cs: cs, class: stemClass, dots: statusDots };
   };
   
+  let stemsData = [];
   if (stem.includes("/")) {
-    const parts = stem.split("/");
-    const mainHtml = processSingle(parts[0]);
-    const guestHtml = processSingle(parts[1]);
-    return `<div style="display: inline-flex; align-items: flex-end; gap: 0.6rem; white-space: nowrap;">${guestHtml}${mainHtml}</div>`;
+    // 反转数组，将客干(寄干)排在左侧外层，主干留在右侧内层
+    stemsData = stem.split("/").reverse().map(processSingleData);
+  } else {
+    stemsData = [processSingleData(stem)];
   }
-  return processSingle(stem);
+
+  // 独立的天干列排版
+  let columnsHtml = stemsData.map(d => {
+    return `<div class="stem-col">
+              <div class="stem-cs-text">${d.cs}</div>
+              <div class="stem-char-text ${d.class}">${d.char}${d.dots}</div>
+            </div>`;
+  }).join("");
+  
+  return `<div class="stems-group">${columnsHtml}</div>`;
 }
 
 /**

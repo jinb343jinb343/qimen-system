@@ -760,20 +760,19 @@ button.btn-angnet:hover::before {
 .palace-card .di-stem,
 .palace-card .an-stem,
 .palace-card .stem-normal {
-  color: #ffffff !important;
-  text-shadow: none !important;
+  color: #ffffff;
 }
 
-/* 值符和值使使用绿色 */
+/* 值符和值使使用青色 */
 .palace-card .spirit-zhifu,
 .palace-card .star-zhifu,
 .palace-card .door-zhishi,
 .palace-card .tag-zhifu,
 .palace-card .tag-zhishi {
-  color: #22c55e !important;
-  border-color: rgba(34, 197, 94, 0.4) !important;
-  background: rgba(34, 197, 94, 0.15) !important;
-  text-shadow: 0 0 8px rgba(34, 197, 94, 0.3) !important;
+  color: #06b6d4 !important;
+  border-color: rgba(6, 182, 212, 0.4) !important;
+  background: rgba(6, 182, 212, 0.15) !important;
+  text-shadow: 0 0 8px rgba(6, 182, 212, 0.4) !important;
 }
 
 /* 入墓用咖啡色 */

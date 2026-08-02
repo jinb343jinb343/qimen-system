@@ -56,3 +56,17 @@ console.log("正在通过 Router 分发并执行多段大模型推理...");
 console.log("======================================\n");
 
 handler(req, res);
+
+// 补充前端渲染验真测试 (JSDOM 模拟)
+/*
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+const html = `...`; // 模拟渲染后的HTML
+const dom = new JSDOM(html);
+const di8 = dom.window.document.getElementById("di-8");
+if (di8 && di8.classList.contains("color-jixing")) {
+    console.log("✅ 前端渲染测试通过！");
+} else {
+    console.error("❌ 前端渲染测试失败，未检测到正确的颜色类名！");
+}
+*/

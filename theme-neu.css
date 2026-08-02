@@ -1,0 +1,281 @@
+/* 极致高级新拟态 (High-End Texture Neumorphism) 主题覆盖 */
+
+:root {
+  --bg-color: #1a1c23;
+  --bg-gradient: linear-gradient(135deg, #1f212a 0%, #13141a 100%);
+  
+  --panel-bg: linear-gradient(145deg, #2a2d39 0%, #1e2029 100%);
+  --panel-bg-hover: linear-gradient(145deg, #2d313d 0%, #22242e 100%);
+  
+  --border-color: rgba(255, 255, 255, 0.03);
+  --border-glow: rgba(96, 165, 250, 0.5);
+  
+  /* Accent Colors: 冰蓝 & 沙金 */
+  --gold-accent: #dcb37b;
+  --gold-light: #f4dcb5;
+  --gold-glow: rgba(220, 179, 123, 0.3);
+  
+  --blue-accent: #60a5fa;
+  --blue-glow: rgba(96, 165, 250, 0.35);
+  
+  --text-primary: #f3f4f6;
+  --text-secondary: #a1a1aa;
+  --text-muted: #52525b;
+  
+  /* 雕刻字体阴影 (内嵌感) */
+  --text-inset: 1px 1px 1px rgba(255,255,255,0.1), -1px -1px 1px rgba(0,0,0,0.8);
+  /* 发光字体阴影 (灵动感) */
+  --text-glow: 0 0 12px rgba(255,255,255,0.25);
+  
+  /* 多层灵动光影 */
+  --neu-outer-shadow: 10px 10px 24px rgba(0, 0, 0, 0.55), -6px -6px 16px rgba(110, 120, 150, 0.04);
+  --neu-surface-glow: inset 1px 1px 2px rgba(255, 255, 255, 0.08), inset -1px -1px 2px rgba(0, 0, 0, 0.3);
+  --neu-inner-shadow: inset 6px 6px 12px rgba(0, 0, 0, 0.6), inset -4px -4px 10px rgba(120, 130, 160, 0.05);
+
+  --element-wood: #4ade80;
+  --element-fire: #f87171;
+  --element-earth: #fbbf24;
+  --element-metal: #cbd5e1;
+  --element-water: #60a5fa;
+}
+
+/* 覆盖旧版星空 */
+body::before {
+  content: "";
+  position: fixed;
+  top: -20%; left: -20%; width: 140%; height: 140%;
+  background: 
+    radial-gradient(circle at 10% 20%, rgba(96, 165, 250, 0.07) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(220, 179, 123, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 50% 100%, rgba(0, 0, 0, 0.7) 0%, transparent 60%) !important;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 1 !important;
+}
+
+/* 材质层：真实噪点覆盖，实现极佳的磨砂金属/相纸感 */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noise)"/></svg>');
+  opacity: 0.04; 
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: overlay;
+}
+
+/* 卡片升级 */
+.palace-card {
+  background: var(--panel-bg) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--neu-outer-shadow), var(--neu-surface-glow) !important;
+}
+
+.palace-card:hover {
+  background: var(--panel-bg-hover) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 14px 14px 30px rgba(0, 0, 0, 0.7), -6px -6px 18px rgba(110, 120, 150, 0.06), var(--neu-surface-glow), 0 0 0 1px rgba(220, 179, 123, 0.15) !important;
+}
+
+.palace-card.selected {
+  border-color: var(--gold-accent) !important;
+  box-shadow: var(--neu-inner-shadow), inset 0 0 0 1px var(--gold-accent) !important;
+  background: #1c1d24 !important;
+}
+
+/* 玻璃面板升级 */
+.glass-panel, .pillar-card {
+  background: var(--panel-bg) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--neu-outer-shadow), var(--neu-surface-glow) !important;
+}
+
+/* 控制按钮与输入框 */
+input[type="date"], input[type="time"], select {
+  background: #18191f !important;
+  box-shadow: var(--neu-inner-shadow) !important;
+  border: 1px solid transparent !important;
+}
+
+button.btn {
+  background: var(--panel-bg) !important;
+  box-shadow: var(--neu-outer-shadow), var(--neu-surface-glow) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+button.btn-primary {
+  color: var(--blue-accent) !important;
+  box-shadow: var(--neu-outer-shadow), var(--neu-surface-glow), 0 0 12px var(--blue-glow) !important;
+}
+
+/* 中五宫深深内嵌槽 */
+.palace-center {
+  background: linear-gradient(145deg, #1c1d24 0%, #16171d 100%) !important;
+  box-shadow: var(--neu-inner-shadow) !important;
+  border: 1px solid rgba(0,0,0,0.5) !important;
+}
+
+.palace-center:hover {
+  box-shadow: var(--neu-inner-shadow), inset 0 0 0 1px rgba(220,179,123,0.1) !important;
+}
+
+/* 文字微距效果 */
+.palace-spirit, .palace-door, .palace-star {
+  text-shadow: var(--text-glow);
+}
+.palace-name, .center-info {
+  text-shadow: var(--text-inset);
+}
+.tian-stem-wrapper .stem-char-text {
+  background: linear-gradient(to bottom, #ffffff 0%, #cbd5e1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.8));
+}
+.di-stem-wrapper .stem-char-text {
+  background: linear-gradient(to bottom, #9ca3af 0%, #6b7280 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.9));
+}
+
+/* ================= 修复核心排版 ================= */
+.tian-stem-wrapper, .di-stem-wrapper {
+  display: flex !important;
+  justify-content: flex-end !important;
+}
+.stems-group {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 0.45rem !important;
+}
+.stem-col {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+.stem-cs-text {
+  font-size: 0.65rem !important;
+  line-height: 1 !important;
+  margin-bottom: 0.25rem !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+  width: 100% !important;
+}
+.tian-stem-wrapper .stem-char-text {
+  font-size: 1.4rem !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+  position: relative !important;
+}
+.di-stem-wrapper .stem-char-text {
+  font-size: 1.15rem !important;
+  font-weight: 700 !important;
+  line-height: 1.1 !important;
+  position: relative !important;
+}
+
+/* 完美对齐与悬挂暗干 */
+.palace-star-group {
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+}
+.palace-star {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+}
+.an-stem {
+  position: absolute !important;
+  right: 100% !important;
+  margin-right: 0.25rem !important;
+  font-size: 0.75rem !important;
+  font-weight: 700 !important;
+  opacity: 0.85 !important;
+  color: rgba(255,255,255,0.5) !important;
+}
+
+/* ================= 色彩与氛围光增强 ================= */
+/* 增加流光溢彩的炫彩五行极光底色 (弥补纯灰单调感) */
+body::before {
+  content: "" !important;
+  position: fixed !important;
+  top: -50% !important; left: -50% !important; width: 200% !important; height: 200% !important;
+  background: 
+    radial-gradient(ellipse at 20% 30%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+    radial-gradient(ellipse at 80% 40%, rgba(234, 179, 8, 0.08) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 80%, rgba(168, 85, 247, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 90%, rgba(239, 68, 68, 0.08) 0%, transparent 40%) !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+  opacity: 1 !important;
+  animation: aurora-flow 25s ease-in-out infinite alternate !important;
+}
+
+@keyframes aurora-flow {
+  0% { transform: rotate(0deg) scale(1); }
+  100% { transform: rotate(15deg) scale(1.1); }
+}
+
+/* 宫位卡片增加更丰富的微光泽 */
+.palace-card {
+  background: linear-gradient(160deg, rgba(42, 45, 57, 0.85) 0%, rgba(28, 30, 39, 0.95) 100%) !important;
+  backdrop-filter: blur(10px) !important;
+}
+.palace-card:hover {
+  background: linear-gradient(160deg, rgba(50, 54, 68, 0.9) 0%, rgba(33, 36, 46, 1) 100%) !important;
+}
+
+/* 五行主次色彩凸显：给八门、九星注入更灵动的本命色发光 */
+.door-text { font-weight: bold !important; text-shadow: 0 0 8px rgba(255, 255, 255, 0.4) !important; }
+.star-text { font-weight: 600 !important; }
+
+/* 五行徽章色彩稍微提亮 */
+.status-rumu { background: #eab308 !important; box-shadow: 0 0 8px rgba(234, 179, 8, 0.6) !important; }
+.status-jixing { background: #d946ef !important; box-shadow: 0 0 8px rgba(217, 70, 239, 0.6) !important; }
+
+/* ================= 细节打磨：暗干、长生与绝对对齐 ================= */
+/* 1. 扩大卡片左侧内边距，提供给悬挂式暗干容身之所，防止冲出画面 */
+.palace-card {
+  padding: 0.85rem 1rem 0.85rem 1.8rem !important; /* 左侧留出 1.8rem 的悬挂空间 */
+}
+
+/* 2. 让神、星、门紧贴新的内容边界，实现垂直绝对对齐 */
+.palace-top, .palace-mid, .palace-bottom {
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+.palace-spirit, .palace-star-group, .palace-door {
+  margin-left: 0 !important;
+}
+
+/* 3. 宫位信息不显示，简化界面 */
+.palace-meta-bg {
+  display: none !important;
+}
+
+/* 4. 暗干的样式调整：变为灰色，悬挂在左侧内边距区域 */
+.an-stem {
+  position: absolute !important;
+  right: 100% !important; /* 悬挂在星的左边 */
+  margin-right: 0.3rem !important;
+  color: #71717a !important; /* 灰色 */
+  font-weight: 500 !important;
+  font-size: 0.75rem !important;
+  opacity: 0.8 !important;
+}
+
+/* 5. 十二长生全部使用灰色 */
+.stem-cs-text {
+  color: #71717a !important; /* 灰色 */
+  font-weight: 500 !important;
+}
+
+/* 确保带背景色边框的徽章（如门）视觉左边缘对齐文字 */
+.palace-door {
+  margin-left: 0 !important;
+}
