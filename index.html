@@ -114,18 +114,7 @@
           </div>
         </div>
 
-        <!-- Drawing Board Tools (Only shown when mode is academic) -->
-        <div id="board-tools" class="board-tools-bar" style="margin-top: 1rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-          <span style="font-size: 0.85rem; color: var(--text-secondary);">手写标记:</span>
-          <button type="button" class="tool-btn" id="btn-toggle-draw" onclick="toggleDrawingMode()">✏️ 开启画笔</button>
-          <button type="button" class="tool-btn" id="btn-clear-draw" onclick="clearDrawingBoard()">🗑️ 清空标记</button>
-          
-          <div class="color-selectors" style="display: flex; gap: 0.4rem; align-items: center; margin-left: 0.5rem;">
-            <button type="button" class="color-dot active" style="background-color: #ef4444;" onclick="changePenColor('#ef4444')" title="荧光红"></button>
-            <button type="button" class="color-dot" style="background-color: #eab308;" onclick="changePenColor('#eab308')" title="荧光黄"></button>
-            <button type="button" class="color-dot" style="background-color: #22c55e;" onclick="changePenColor('#22c55e')" title="荧光绿"></button>
-          </div>
-        </div>
+        <!-- Drawing tools moved to below pillars banner for mobile proximity -->
       </form>
     </section>
 
@@ -186,6 +175,19 @@
         </div>
       </div>
     </section>
+
+    <!-- Drawing Board Tools (Moved closer to grid for mobile usability) -->
+    <div id="board-tools" class="board-tools-bar" style="display: flex; align-items: center; justify-content: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1rem; padding: 0.6rem; background: var(--panel-bg); border-radius: 16px; box-shadow: var(--neu-outer-shadow), var(--neu-surface-glow); border: 1px solid rgba(0,0,0,0.5);">
+      <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600;">战术标记:</span>
+      <button type="button" class="tool-btn btn" id="btn-toggle-draw" onclick="toggleDrawingMode()" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 8px;">✏️ 开启画笔</button>
+      <button type="button" class="tool-btn btn" id="btn-clear-draw" onclick="clearDrawingBoard()" style="padding: 0.4rem 0.8rem; font-size: 0.85rem; border-radius: 8px;">🗑️ 清空</button>
+      
+      <div class="color-selectors" style="display: flex; gap: 0.5rem; align-items: center; margin-left: 0.5rem;">
+        <button type="button" class="color-dot active" style="background-color: #ef4444; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); box-shadow: var(--neu-outer-shadow);" onclick="changePenColor('#ef4444')" title="荧光红"></button>
+        <button type="button" class="color-dot" style="background-color: #eab308; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); box-shadow: var(--neu-outer-shadow);" onclick="changePenColor('#eab308')" title="荧光黄"></button>
+        <button type="button" class="color-dot" style="background-color: #22c55e; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); box-shadow: var(--neu-outer-shadow);" onclick="changePenColor('#22c55e')" title="荧光绿"></button>
+      </div>
+    </div>
 
     <!-- Main Output Section -->
     <div class="qimen-layout">
