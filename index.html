@@ -422,9 +422,9 @@
               <div class="chat-bubble">您好，我是您的AI解盘助理。排盘完成后，请随时向我提问。</div>
             </div>
           </div>
-          <div class="ai-chat-footer">
-            <input type="text" id="ai-chat-input" placeholder="请在此输入你想问的问题..." autocomplete="off" onkeypress="if(event.key==='Enter') sendAiChat()">
-            <button class="ai-chat-send-btn" onclick="sendAiChat()">发送</button>
+          <div class="ai-chat-footer" style="display: flex; flex-direction: column; align-items: stretch; gap: 0.5rem;">
+            <textarea id="ai-chat-input" placeholder="请在此输入你想问的问题 (Shift+Enter 换行)..." autocomplete="off" style="width: 100%; min-height: 80px; resize: vertical; border-radius: 8px; padding: 0.8rem; background: var(--input-bg); color: var(--text-primary); border: 1px solid rgba(255,255,255,0.05); font-family: inherit; font-size: 0.95rem; box-shadow: var(--neu-inner-shadow); outline: none; overflow-y: auto; line-height: 1.5;" oninput="this.style.height = 'auto'; this.style.height = Math.min(this.scrollHeight, 300) + 'px'" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendAiChat(); }"></textarea>
+            <button class="ai-chat-send-btn btn btn-primary" onclick="sendAiChat()" style="align-self: flex-end; padding: 0.5rem 1.5rem;">发送</button>
           </div>
         </div>
       </aside>

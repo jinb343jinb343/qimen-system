@@ -1410,10 +1410,13 @@ button.btn-primary {
 
 /* 8. 移动端强制修复 (Mobile Responsive Overrides) */
 @media (max-width: 600px) {
+  .container {
+    padding: 0.2rem 0.1rem !important;
+  }
   .nine-grid {
-    gap: 0.4rem !important;
-    padding: 0.5rem !important;
-    border-radius: 20px !important;
+    gap: 0.25rem !important;
+    padding: 0.25rem !important;
+    border-radius: 16px !important;
     box-shadow: inset 4px 4px 10px rgba(0,0,0,0.8), inset -2px -2px 6px rgba(255,255,255,0.03) !important;
   }
   .palace-card {
