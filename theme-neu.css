@@ -63,6 +63,9 @@
   opacity: 1;
   animation: fadeInLayer 0.4s forwards;
 }
+#view-splash.active {
+  display: flex;
+}
 
 @keyframes fadeInLayer {
   from { opacity: 0; }
