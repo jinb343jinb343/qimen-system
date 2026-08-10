@@ -37,9 +37,9 @@
     <!-- ================= LAYER A: SPLASH / START ================= -->
     <div id="view-splash" class="view-layer active" style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 50;">
       
-      <!-- Central Stacked Title (Click to Enter) -->
-      <div id="splash-title" style="display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translateY(-10vh); cursor: pointer; z-index: 51;" 
-           onclick="switchView('input')">
+      <!-- Central Stacked Title (Click to show auth) -->
+      <div id="splash-title" style="display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translateY(-10vh); cursor: pointer; transition: opacity 0.5s; z-index: 51;" 
+           onclick="document.getElementById('splash-title').style.opacity='0'; setTimeout(()=>document.getElementById('splash-title').style.display='none',500); setTimeout(()=>document.getElementById('splash-auth').style.display='block',500);">
         <div class="title-glow-float" style="font-size: 8rem; line-height: 1; margin-bottom: 0.5rem; color: #fff;">观</div>
         <div style="font-family: 'AaLieYan', sans-serif; font-size: 1.2rem; letter-spacing: 1rem; color: #fff; margin-left: 1rem; text-shadow: 0 0 10px rgba(255,255,255,0.5);">奇门遁甲</div>
         <div class="title-glow-float" style="font-size: 8rem; line-height: 1; margin-top: 0.5rem; color: #fff;">机</div>
@@ -50,10 +50,20 @@
         天发杀机，移星易宿；地发杀机，龙蛇起陆；<br>
         人发杀机，天地反覆；天人合发，万变定基
       </div>
+      <!-- Auth Box (Hidden by default) -->
+      <div id="splash-auth" class="glass-panel animate-fade-in" style="display: none; max-width: 380px; padding: 2.5rem 2rem; text-align: center; border-radius: 20px; z-index: 52;">
+        <h2 style="color: var(--gold-accent); margin-bottom: 0.5rem; font-size: 1.5rem; letter-spacing: 2px;">门神指纹验证</h2>
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 2rem;">文刀流 · 奇门遁甲高阶系统</p>
+        <input type="password" id="login-password" placeholder="请输入秘钥 (默认: 8888)" autocomplete="off" style="width: 100%; margin-bottom: 2rem; padding: 0.8rem 1rem; background: var(--input-bg); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; color: var(--text-primary); box-shadow: var(--neu-inner-shadow); outline: none; text-align: center; letter-spacing: 5px; font-family: monospace;" onkeypress="if(event.key==='Enter') attemptLogin()">
+        <button type="button" class="btn btn-primary" onclick="attemptLogin()" style="width: 100%; padding: 0.8rem; border-radius: 12px; font-size: 1rem; letter-spacing: 4px;">解开封印</button>
+      </div>
     </div>
 
     <!-- ================= LAYER B: INPUT ================= -->
     <div id="view-input" class="view-layer">
+      <div style="display: flex; justify-content: flex-start; margin-bottom: 1rem;">
+        <button type="button" class="btn" onclick="document.getElementById('splash-auth').style.display='none'; document.getElementById('splash-title').style.display='flex'; document.getElementById('splash-title').style.opacity='1'; switchView('splash');" style="padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 8px;">&lt; 退出系统</button>
+      </div>
       
       <section class="glass-panel control-panel animate-fade-in">
         <form id="qimen-form" onsubmit="event.preventDefault(); triggerCalculate();">
