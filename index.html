@@ -35,11 +35,11 @@
     <!-- (Header removed for splash) -->
 
     <!-- ================= LAYER A: SPLASH / START ================= -->
-    <div id="view-splash" class="view-layer active" style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 50; transition: opacity 0.5s;">
+    <div id="view-splash" class="view-layer active" style="height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; z-index: 50;">
       
       <!-- Central Stacked Title (Click to Enter) -->
-      <div id="splash-title" style="display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translateY(-10vh); cursor: pointer; transition: opacity 0.5s; z-index: 51;" 
-           onclick="document.getElementById('view-splash').style.opacity='0'; setTimeout(()=> { document.getElementById('view-splash').style.display='none'; document.getElementById('view-input').style.opacity='1'; document.getElementById('view-input').style.display='block'; }, 500);">
+      <div id="splash-title" style="display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translateY(-10vh); cursor: pointer; z-index: 51;" 
+           onclick="switchView('input')">
         <div class="title-glow-float" style="font-size: 8rem; line-height: 1; margin-bottom: 0.5rem; color: #fff;">观</div>
         <div style="font-family: 'AaLieYan', sans-serif; font-size: 1.2rem; letter-spacing: 1rem; color: #fff; margin-left: 1rem; text-shadow: 0 0 10px rgba(255,255,255,0.5);">奇门遁甲</div>
         <div class="title-glow-float" style="font-size: 8rem; line-height: 1; margin-top: 0.5rem; color: #fff;">机</div>
@@ -53,7 +53,7 @@
     </div>
 
     <!-- ================= LAYER B: INPUT ================= -->
-    <div id="view-input" class="view-layer" style="display: none; opacity: 0; transition: opacity 0.5s;">
+    <div id="view-input" class="view-layer">
       
       <section class="glass-panel control-panel animate-fade-in">
         <form id="qimen-form" onsubmit="event.preventDefault(); triggerCalculate();">
