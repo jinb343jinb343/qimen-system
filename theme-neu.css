@@ -1,37 +1,48 @@
 /* CSS Design System for Qimen Dunjia Auto-Charting System */
 
 /* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Outfit:wght@300;400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700;900&family=Outfit:wght@300;400;600;700&family=Ma+Shan+Zheng&display=swap');
 
 :root {
-  --bg-color: #060713;
-  --bg-gradient: radial-gradient(circle at 50% 50%, #111430 0%, #060713 100%);
-  --panel-bg: rgba(13, 16, 38, 0.65);
-  --border-color: rgba(212, 175, 55, 0.15);
+  --bg-color: #121212;
+  --bg-gradient: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #121212 100%);
+  --panel-bg: #1e1e1e;
+  --panel-bg-hover: #262626;
+  --input-bg: rgba(0, 0, 0, 0.5);
+  
+  --border-color: rgba(212, 175, 55, 0.2);
   --border-glow: rgba(212, 175, 55, 0.4);
   
-  /* Accent Colors */
+  /* Bazi Gold Accent Colors */
   --gold-accent: #d4af37;
-  --gold-light: #f3e5ab;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
+  --gold-light: #f9d77e;
+  --blue-accent: #d4af37; /* Force blue to be gold in Bazi style */
+  --cyan-glow: rgba(212, 175, 55, 0.3); /* Force cyan to gold glow */
   
-  /* Five Elements Colors (Taoist Wu Xing) */
-  --element-wood: #22c55e;  /* Green - Wood */
-  --element-fire: #ef4444;  /* Red - Fire */
-  --element-earth: #eab308; /* Yellow/Gold - Earth */
-  --element-metal: #cbd5e1; /* Silver/White - Metal */
-  --element-water: #3b82f6; /* Blue - Water */
+  --text-primary: #e0e0e0;
+  --text-secondary: #888888;
+  --text-muted: #666666;
   
-  /* Auspiciousness Colors */
-  --auspicious: #10b981;   /* Emerald Green - 吉 */
-  --inauspicious: #f43f5e; /* Rose Red - 凶 */
-  --neutral: #8b5cf6;      /* Purple - 平 */
+  /* Five Elements Colors (Bazi Style) */
+  --element-wood: #52b788;  /* Bamboo Green */
+  --element-fire: #e5383b;  /* Cinnabar Red */
+  --element-earth: #c69c6d; /* Ochre/Gold */
+  --element-metal: #e9c46a; /* Frost White/Gold */
+  --element-water: #4cc9f0; /* Azure */
+  
+  /* Auspiciousness Colors (Bazi Scheme) */
+  --auspicious: #52b788;   /* Green */
+  --inauspicious: #e5383b; /* Red */
+  --neutral: #e9c46a;      /* Neutral Gold */
   
   /* Transitions */
   --transition-fast: 0.2s ease;
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Neumorphism tokens forced to Bazi Oriental Black/Gold */
+  --neu-outer-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --neu-inner-shadow: inset 0 2px 10px rgba(0,0,0,0.8);
+  --neu-surface-glow: inset 0 1px 0 rgba(212, 175, 55, 0.2);
 }
 
 /* Reset & Base Styles */
@@ -57,21 +68,12 @@ body {
 body::before {
   content: "";
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(1px 1px at 20px 30px, #fff, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 40px 70px, #fff, rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 50px 160px, rgba(255,255,255,0.7), rgba(0,0,0,0)),
-    radial-gradient(2px 2px at 80px 120px, rgba(212, 175, 55, 0.8), rgba(0,0,0,0)),
-    radial-gradient(1px 1px at 110px 210px, #fff, rgba(0,0,0,0)),
-    radial-gradient(1.5px 1.5px at 150px 30px, rgba(255,255,255,0.5), rgba(0,0,0,0));
-  background-size: 250px 250px;
-  opacity: 0.35;
+  top: 0; left: 0; width: 100%; height: 100%;
   pointer-events: none;
-  z-index: 0;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  background-size: auto;
+  z-index: 9999;
 }
 
 .container {
@@ -91,14 +93,14 @@ h1, h2, h3, h4, .chinese-serif {
 h1 {
   font-weight: 900;
   letter-spacing: 0.15em;
-  background: linear-gradient(135deg, #fff 30%, var(--gold-light) 70%, var(--gold-accent) 100%);
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-accent) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
   text-align: center;
   margin-bottom: 0.5rem;
   font-size: 2.2rem;
-  text-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+  font-family: 'Ma Shan Zheng', cursive;
 }
 
 .subtitle {
@@ -557,6 +559,50 @@ button.btn-angnet:hover::before {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+}
+
+/* --- 3.0 重构 DOM 结构绝对对齐 --- */
+.palace-meta-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0.15;
+  z-index: 0;
+}
+.palace-meta-bg .palace-gua {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--gold-accent);
+}
+.palace-meta-bg .palace-name {
+  font-size: 1rem;
+  letter-spacing: 0.2rem;
+  color: var(--text-secondary);
+  margin-top: 0.2rem;
+}
+
+.palace-top, .palace-mid, .palace-bottom {
+  position: relative;
+  z-index: 1;
+}
+
+.palace-star-group {
+  display: flex;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.tian-stem-wrapper, .di-stem-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  align-items: baseline;
 }
 
 .palace-stems {
@@ -1430,4 +1476,92 @@ button.btn-primary {
   .palace-star { font-size: 0.8rem !important; }
   .stem-cs-text { font-size: 0.55rem !important; }
   .an-stem { font-size: 0.65rem !important; margin-right: 0.15rem !important; }
+}
+
+/* ================= THE ABSOLUTE OVERRIDES (V2 FIX) ================= */
+body {
+  background-color: #0d1117 !important;
+  background-image: url('./assets/images/bg-desktop.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+}
+.control-panel, .glass-panel {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+:root {
+  --btn-bg: linear-gradient(180deg, #1e1e1e 0%, #121212 100%) !important;
+  --btn-bg-hover: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%) !important;
+  --btn-bg-active: linear-gradient(180deg, #0d0d0d 0%, #000000 100%) !important;
+}
+.btn {
+  background: var(--btn-bg) !important;
+  border: 1px solid rgba(212, 175, 55, 0.2) !important;
+  color: #d4af37 !important;
+}
+.btn-primary {
+  background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%) !important;
+  color: #000 !important;
+  border: none !important;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #f9d77e 0%, #d4af37 100%) !important;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4) !important;
+}
+.cyber-input {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3) !important;
+  color: #d4af37 !important;
+}
+.cyber-input:focus {
+  border-bottom: 1px solid #d4af37 !important;
+}
+
+/* ================= BAZI ORIENTAL OVERRIDES ================= */
+.glass-panel::after, .palace-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold-accent), transparent);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+@font-face {
+  font-family: 'AaLieYan';
+  src: local('Aa烈焰隶书'), local('AaLYLS'),
+       url('./assets/fonts/LieYan-Subset.woff2') format('woff2'),
+       url('./assets/fonts/Qimen-Robust.woff2') format('woff2'),
+       url('./assets/fonts/AaLieYanLiShu-2.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@keyframes intense-glow {
+  0%, 100% { text-shadow: 0 0 1px rgba(255,255,255,0.2), 0 0 2px rgba(212,175,55,0.1); opacity: 0.85; }
+  50% { text-shadow: 0 0 4px rgba(255,255,255,0.8), 0 0 10px rgba(212,175,55,0.5); opacity: 1; }
+}
+
+.title-glow-float {
+  color: #ffffff;
+  animation: intense-glow 3s ease-in-out infinite;
+  font-family: 'AaLieYan', 'Ma Shan Zheng', cursive;
+}
+
+/* ================= VIEW ROUTER (SPA LAYERS) ================= */
+.view-layer {
+  display: none;
+  width: 100%;
+  animation: fadeIn 0.4s ease forwards;
+}
+.view-layer.active {
+  display: block;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

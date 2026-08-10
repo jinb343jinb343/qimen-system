@@ -57,16 +57,31 @@ console.log("======================================\n");
 
 handler(req, res);
 
-// 补充前端渲染验真测试 (JSDOM 模拟)
+// 补充前端渲染验真测试 (JSDOM 模拟，针对 3.0 拟态风与新 DOM 结构)
 /*
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
-const html = `...`; // 模拟渲染后的HTML
+const html = `<div id="palace-8" class="palace-card">
+  <div class="palace-meta-bg">
+    <span class="palace-gua">艮8</span>
+  </div>
+  <div class="palace-mid">
+    <div class="palace-star-group">
+      <span class="palace-star">天任星</span>
+    </div>
+    <div class="tian-stem-wrapper" id="tian-8">戊<span class="badge-tag tag-jixing">击刑</span></div>
+  </div>
+</div>`;
 const dom = new JSDOM(html);
-const di8 = dom.window.document.getElementById("di-8");
-if (di8 && di8.classList.contains("color-jixing")) {
-    console.log("✅ 前端渲染测试通过！");
+const doc = dom.window.document;
+
+const metaBg = doc.querySelector(".palace-meta-bg .palace-gua");
+const starGroup = doc.querySelector(".palace-star-group .palace-star");
+const tianWrapper = doc.querySelector(".tian-stem-wrapper");
+
+if (metaBg && starGroup && tianWrapper && tianWrapper.innerHTML.includes("tag-jixing")) {
+    console.log("✅ 前端 3.0 DOM 渲染测试通过！宫位水印、星群组合及击刑高亮均已正确生成。");
 } else {
-    console.error("❌ 前端渲染测试失败，未检测到正确的颜色类名！");
+    console.error("❌ 前端 3.0 DOM 渲染测试失败，缺失关键结构 (.palace-meta-bg, .palace-star-group) 或类名！");
 }
 */

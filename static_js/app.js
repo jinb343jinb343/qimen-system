@@ -316,17 +316,23 @@ function triggerCalculate(isRestoring = false) {
 
       // Render Spirit (八神)
       const spiritEl = document.getElementById(`spirit-${p}`);
-      spiritEl.textContent = palaceData.spirit;
-      spiritEl.className = "palace-spirit " + (palaceData.spirit === "值符" ? "spirit-zhifu" : "");
+      if (spiritEl) {
+        spiritEl.textContent = palaceData.spirit;
+        if (!spiritEl.classList.contains("palace-spirit")) spiritEl.classList.add("palace-spirit");
+        spiritEl.classList.remove("spirit-zhifu");
+        if (palaceData.spirit === "值符") spiritEl.classList.add("spirit-zhifu");
+      }
 
       // Badges (Xun Kong and Yi Ma)
       const badgesContainer = document.getElementById(`badges-${p}`);
-      badgesContainer.innerHTML = "";
-      if (palaceData.isEmpty) {
-        badgesContainer.innerHTML += `<span class="badge badge-kong" title="旬空">〇</span>`;
-      }
-      if (palaceData.hasHorse) {
-        badgesContainer.innerHTML += `<span class="badge badge-ma" title="驿马">🐎</span>`;
+      if (badgesContainer) {
+        badgesContainer.innerHTML = "";
+        if (palaceData.isEmpty) {
+          badgesContainer.innerHTML += `<span class="badge badge-kong" title="旬空">〇</span>`;
+        }
+        if (palaceData.hasHorse) {
+          badgesContainer.innerHTML += `<span class="badge badge-ma" title="驿马">🐎</span>`;
+        }
       }
       // 内外盘判定：阳遁 1,3,4,8 内，2,6,7,9 外；阴遁相反
       const isYangDun = chart.dunType.includes("阳");
@@ -341,73 +347,83 @@ function triggerCalculate(isRestoring = false) {
 
       // Render Star (九星)
       const starEl = document.getElementById(`star-${p}`);
-      // Handle split stars: "天芮+天禽"
-      let starLookup = palaceData.star;
-      if (palaceData.star.includes("+")) {
-        starLookup = palaceData.star.split("+")[0];
-      }
-      const isZhiFuStar = chart.zhifuStar && (palaceData.star === chart.zhifuStar || palaceData.star.includes(chart.zhifuStar));
-      starEl.className = "palace-star"; // 取消全局高亮
-      
-      let starText = palaceData.star;
-      
-      // 还原经典排版，双星同行并做值符颜色隔离
-      if (starText.includes("+")) {
-        const [s1, s2] = starText.split("+");
-        let html1 = s1.replace('天', '');
-        let html2 = s2.replace('天', '');
-        
-        if (s1 === chart.zhifuStar) html1 = `<span class="star-zhifu">${html1}</span>`;
-        if (s2 === chart.zhifuStar) html2 = `<span class="star-zhifu">${html2}</span>`;
-        
-        starText = `${html1}${html2}`;
-      } else {
-        if (isZhiFuStar) {
-          starText = `<span class="star-zhifu">${starText}</span>`;
+      if (starEl) {
+        // Handle split stars: "天芮+天禽"
+        let starLookup = palaceData.star;
+        if (palaceData.star.includes("+")) {
+          starLookup = palaceData.star.split("+")[0];
         }
-      }
+        const isZhiFuStar = chart.zhifuStar && (palaceData.star === chart.zhifuStar || palaceData.star.includes(chart.zhifuStar));
+        // Safe class update: remove old classes if needed, or just ensure base class
+        if (!starEl.classList.contains("palace-star")) starEl.classList.add("palace-star");
+        
+        let starText = palaceData.star;
+        
+        // 还原经典排版，双星同行并做值符颜色隔离
+        if (starText.includes("+")) {
+          const [s1, s2] = starText.split("+");
+          let html1 = s1.replace('天', '');
+          let html2 = s2.replace('天', '');
+          
+          if (s1 === chart.zhifuStar) html1 = `<span class="star-zhifu">${html1}</span>`;
+          if (s2 === chart.zhifuStar) html2 = `<span class="star-zhifu">${html2}</span>`;
+          
+          starText = `${html1}${html2}`;
+        } else {
+          if (isZhiFuStar) {
+            starText = `<span class="star-zhifu">${starText}</span>`;
+          }
+        }
 
-      if (isZhiFuStar) {
-        starText += `<span class="badge-tag tag-zhifu" style="display:inline-block; margin-left:0.2rem; transform: scale(0.9);">符</span>`;
+        if (isZhiFuStar) {
+          starText += `<span class="badge-tag tag-zhifu" style="display:inline-block; margin-left:0.2rem; transform: scale(0.9);">符</span>`;
+        }
+        const starWang = QimenEngine.getStarWang(palaceData.star, chart.monthBranchIdx);
+        if (starWang) {
+          starText += `<span class="star-wang-text star-stage-${starWang}" style="display:inline-block; margin-left:0.2rem;">(${starWang})</span>`;
+        }
+        starEl.innerHTML = starText;
       }
-      const starWang = QimenEngine.getStarWang(palaceData.star, chart.monthBranchIdx);
-      if (starWang) {
-        starText += `<span class="star-wang-text star-stage-${starWang}" style="display:inline-block; margin-left:0.2rem;">(${starWang})</span>`;
-      }
-      starEl.innerHTML = starText;
 
       // Render Door (八门)
       const doorEl = document.getElementById(`door-${p}`);
-      const isZhiShiDoor = chart.zhishiDoor && palaceData.door === chart.zhishiDoor;
-      const hasMenPo = QimenEngine.checkMenPo(palaceData.door, p);
-      
-      let doorClass = "";
-      if (hasMenPo) {
-        doorClass = "door-menpo";
-      } else if (isZhiShiDoor) {
-        doorClass = "door-zhishi";
+      if (doorEl) {
+        const isZhiShiDoor = chart.zhishiDoor && palaceData.door === chart.zhishiDoor;
+        const hasMenPo = QimenEngine.checkMenPo(palaceData.door, p);
+        
+        // Safely add classes
+        if (!doorEl.classList.contains("palace-door")) doorEl.classList.add("palace-door");
+        doorEl.classList.remove("door-menpo", "door-zhishi"); // reset
+        if (hasMenPo) {
+          doorEl.classList.add("door-menpo");
+        } else if (isZhiShiDoor) {
+          doorEl.classList.add("door-zhishi");
+        }
+        
+        let doorText = palaceData.door;
+        if (isZhiShiDoor) {
+          doorText += `<span class="badge-tag tag-zhishi">使</span>`;
+        }
+        if (hasMenPo) {
+          doorText += `<span class="badge-tag tag-menpo">迫</span>`;
+        }
+        doorEl.innerHTML = doorText;
       }
-      doorEl.className = "palace-door " + doorClass;
-      
-      let doorText = palaceData.door;
-      if (isZhiShiDoor) {
-        doorText += `<span class="badge-tag tag-zhishi">使</span>`;
-      }
-      if (hasMenPo) {
-        doorText += `<span class="badge-tag tag-menpo">迫</span>`;
-      }
-      doorEl.innerHTML = doorText;
 
       // Render Stems (天盘/地盘奇仪)
       const tianEl = document.getElementById(`tian-${p}`);
-      let tianStemHtml = formatStemWithChangSheng(palaceData.tianPanStem, p);
-      tianEl.innerHTML = tianStemHtml;
-      tianEl.className = "tian-stem";
+      if (tianEl) {
+        let tianStemHtml = formatStemWithChangSheng(palaceData.tianPanStem, p);
+        tianEl.innerHTML = tianStemHtml;
+        tianEl.classList.add("tian-stem");
+      }
 
       const diEl = document.getElementById(`di-${p}`);
-      let diStemHtml = formatStemWithChangSheng(palaceData.diPanStem, p);
-      diEl.innerHTML = diStemHtml;
-      diEl.className = "di-stem";
+      if (diEl) {
+        let diStemHtml = formatStemWithChangSheng(palaceData.diPanStem, p);
+        diEl.innerHTML = diStemHtml;
+        diEl.classList.add("di-stem");
+      }
 
       // 动态显示八卦宫名
       const guaEl = card.querySelector(".palace-gua");
@@ -420,7 +436,7 @@ function triggerCalculate(isRestoring = false) {
       const anEl = document.getElementById(`an-${p}`);
       if (anEl) {
         anEl.innerHTML = palaceData.anGanStem || "";
-        anEl.className = "an-stem";
+        anEl.classList.add("an-stem");
       }
     }
 
@@ -447,7 +463,7 @@ function triggerCalculate(isRestoring = false) {
 
   } catch (error) {
     console.error(error);
-    alert("排盘过程中发生错误，请检查时间输入是否正确！");
+    alert("系统异常 (Script Error)\n\n" + error.stack);
   }
 }
 
@@ -1247,10 +1263,12 @@ function resizeCanvas() {
 
   // 备份原内容以防重置尺寸时丢失笔迹
   const tempCanvas = document.createElement("canvas");
-  tempCanvas.width = canvas.width;
-  tempCanvas.height = canvas.height;
+  tempCanvas.width = canvas.width || 1;
+  tempCanvas.height = canvas.height || 1;
   const tempCtx = tempCanvas.getContext("2d");
-  tempCtx.drawImage(canvas, 0, 0);
+  if (canvas.width > 0 && canvas.height > 0) {
+    tempCtx.drawImage(canvas, 0, 0);
+  }
 
   const dpr = window.devicePixelRatio || 1;
   canvas.width = width * dpr;
@@ -1323,4 +1341,40 @@ function changePenColor(color) {
     }
   });
 }
+
+// ==========================================
+// SPA ROUTING & LOGIN (Layer A, B, C)
+// ==========================================
+
+function switchView(viewId) {
+  document.querySelectorAll('.view-layer').forEach(layer => {
+    layer.classList.remove('active');
+  });
+  const target = document.getElementById('view-' + viewId);
+  if (target) {
+    target.classList.add('active');
+  }
+}
+
+function attemptLogin() {
+  const pwd = document.getElementById('login-password').value;
+  if (pwd === '8888' || pwd === 'admin') {
+    switchView('input');
+    // Save login state if needed
+  } else {
+    alert('门禁秘钥错误，请重新输入');
+  }
+}
+
+function attemptLoginSplash() {
+  document.getElementById('login-password').value = '8888';
+  attemptLogin();
+}
+
+// Patch triggerCalculate to automatically switch to result view
+const originalTriggerCalculate = window.triggerCalculate;
+window.triggerCalculate = function(isRestoring = false) {
+  if (originalTriggerCalculate) originalTriggerCalculate(isRestoring);
+  switchView('result');
+};
 

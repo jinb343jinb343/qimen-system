@@ -9,8 +9,8 @@
         return false;
       }
       const div = document.createElement('div');
-      div.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);width:auto;max-width:80%;background:rgba(15,23,42,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(239,68,68,0.5);box-shadow:0 0 15px rgba(239,68,68,0.3);color:#f8fafc;padding:1rem 1.5rem;border-radius:12px;z-index:99999;font-family:monospace;font-size:14px;line-height:1.5;opacity:1;transition:opacity 0.5s ease;';
-      div.innerHTML = '<strong style="color:#ef4444;font-size:1.1em;letter-spacing:1px;">⚠ 系统异常 (Script Error)</strong><br><span style="color:#94a3b8;margin-top:0.5rem;display:inline-block;">' + message + '</span><br><small style="color:#64748b;margin-top:0.25rem;display:inline-block;">[' + source + ' : ' + lineno + ']</small>';
+      div.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:auto;max-width:80%;background:rgba(15,23,42,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(239,68,68,0.8);box-shadow:0 0 20px rgba(239,68,68,0.6), inset 0 0 10px rgba(239,68,68,0.2);color:#f8fafc;padding:1.5rem 2rem;border-radius:16px;z-index:99999;font-family:monospace;font-size:15px;line-height:1.6;opacity:1;transition:opacity 0.5s ease;text-align:center;';
+      div.innerHTML = '<strong style="color:#ef4444;font-size:1.2em;letter-spacing:1px;display:block;margin-bottom:0.5rem;">⚠ 系统异常 (Script Error)</strong><span style="color:#94a3b8;display:inline-block;">' + message + '</span><br><small style="color:#64748b;margin-top:0.5rem;display:inline-block;">[' + source + ' : ' + lineno + ']</small>';
       if (document.body) {
         document.body.insertBefore(div, document.body.firstChild);
       } else {
@@ -28,20 +28,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>奇门遁甲智能排盘系统</title>
   <meta name="description" content="一个高精度的网页端奇门遁甲自动排盘系统。只需输入公历时间，系统即可自动进行太阳黄经计算、推算节气、排出天盘、地盘、八门、九星、八神、旬空及驿马，并提供详细的宫位克应合局解析。">
-  <link rel="stylesheet" href="theme-neu.css">
+  <link rel="stylesheet" href="theme-neu.css?v=20260829">
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
-    <header class="animate-fade-in">
-      <h1>奇门遁甲智能排盘系统</h1>
-      <p class="subtitle">—— 基于紫金山天文台历法计算标准与时家转盘奇门法则 ——</p>
-    </header>
+    <!-- (Header removed for splash) -->
 
-    <!-- Control Form Panel -->
-    <section class="glass-panel control-panel animate-fade-in" style="animation-delay: 0.1s;">
-      <form id="qimen-form" onsubmit="event.preventDefault(); triggerCalculate();">
-        <div class="control-grid">
+    <!-- ================= LAYER B: INPUT ================= -->
+    <div id="view-input" class="view-layer active">
+      <!-- No login layer required for this branch -->
+      
+      <section class="glass-panel control-panel animate-fade-in">
+        <form id="qimen-form" onsubmit="event.preventDefault(); triggerCalculate();">
+
+<div class="control-grid">
           
 
 
@@ -79,10 +79,17 @@
                 自动排盘
             </div>
           </div>
-        </div>
+        </form>
+      </section>
+    </div>
 
-        <!-- Forecasting Modes -->
-        <div style="margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
+    <!-- ================= LAYER C: RESULTS ================= -->
+    <div id="view-result" class="view-layer">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; background: var(--panel-bg); padding: 1rem; border-radius: 16px; box-shadow: var(--neu-outer-shadow);">
+        <button type="button" class="btn" onclick="switchView('input')" style="padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 8px; white-space: nowrap;">&lt; 重新排盘</button>
+        
+        <!-- Moved Forecast Modes here (Layer C) -->
+<div style="margin-top: 0; display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center;">
           <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center;">
             <div style="display: flex; align-items: center; gap: 0.5rem;">
               <label style="margin: 0; white-space: nowrap;">占断模式:</label>
@@ -113,12 +120,9 @@
             </div>
           </div>
         </div>
+      </div>
 
-        <!-- Drawing tools moved to below pillars banner for mobile proximity -->
-      </form>
-    </section>
-
-    <!-- Pillars Banner (四柱乾坤) -->
+<!-- Pillars Banner (四柱乾坤) -->
     <section id="pillars-banner" class="glass-panel animate-fade-in hidden" style="animation-delay: 0.2s;">
       <div class="pillars-container">
         <!-- Year -->
@@ -388,7 +392,7 @@
         </div>
 
       </main>
-
+      
       <!-- Detailed Interpretations Sidebar -->
       <aside class="glass-panel interpretation-panel animate-fade-in" style="animation-delay: 0.4s;">
         <div class="tab-container">
@@ -431,16 +435,15 @@
         </div>
       </aside>
     </div>
-
-    <!-- Footer -->
+<!-- Footer -->
     <footer>
       <p>© 2026 奇门遁甲智能排盘系统. 仅供传统术数学术研究与排盘计算参考.</p>
     </footer>
   </div>
 
   <!-- Astrological calculation and frontend scripts -->
-  <script src="static_js/qimen.js?v=3"></script>
-  <script src="static_js/forecast.js?v=3"></script>
-  <script src="static_js/app.js?v=5"></script>
+  <script src="static_js/qimen.js?v=20260829"></script>
+  <script src="static_js/forecast.js?v=20260829"></script>
+  <script src="static_js/app.js?v=20260829"></script>
 </body>
 </html>
