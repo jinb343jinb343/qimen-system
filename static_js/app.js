@@ -1359,11 +1359,28 @@ function switchView(viewId) {
   }
 }
 
+window.showAuthModal = function() {
+  document.getElementById('splash-title').style.filter = 'blur(8px) brightness(0.6)';
+  const auth = document.getElementById('splash-auth');
+  auth.style.display = 'flex';
+  setTimeout(() => auth.style.opacity = '1', 10);
+};
+
+window.hideAuthModal = function(e) {
+  if (e.target.id === 'splash-auth') {
+    const auth = document.getElementById('splash-auth');
+    auth.style.opacity = '0';
+    setTimeout(() => auth.style.display = 'none', 500);
+    document.getElementById('splash-title').style.filter = 'none';
+  }
+};
+
 function attemptLogin() {
   let user = document.getElementById('login-username').value;
   let pwd = document.getElementById('login-password').value;
   
   if (user === 'jinb343' && pwd === 'jinb343') {
+    document.getElementById('splash-title').style.filter = 'none';
     switchView('input');
   } else {
     alert('用户名或密码错误，请重新输入');
