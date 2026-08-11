@@ -1585,3 +1585,64 @@ body {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ==========================================
+ * SPLASH AESTHETICS (LAYER A)
+ * ========================================== */
+#view-splash {
+  background-image: url('assets/images/bg-desktop.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 100vw;
+}
+
+@media (max-width: 768px) {
+  #view-splash {
+    background-image: url('assets/images/bg-mobile.png');
+  }
+}
+
+@keyframes breatheFloatMain {
+  0%, 100% { transform: translateY(0) scale(1); text-shadow: 0 0 20px rgba(255,255,255,0.3); }
+  50% { transform: translateY(-8px) scale(1.02); text-shadow: 0 0 40px rgba(255,255,255,0.8); }
+}
+
+@keyframes breatheFloatSub {
+  0%, 100% { transform: translateY(0); text-shadow: 0 0 10px rgba(255,255,255,0.3); }
+  50% { transform: translateY(-4px); text-shadow: 0 0 25px rgba(255,255,255,0.6); }
+}
+
+.breathe-main {
+  animation: breatheFloatMain 4s ease-in-out infinite;
+  display: inline-block;
+}
+
+.breathe-sub {
+  animation: breatheFloatSub 4s ease-in-out infinite;
+  display: inline-block;
+}
+
+.delay-1 { animation-delay: 0.2s; }
+.delay-2 { animation-delay: 0.8s; }
+.delay-3 { animation-delay: 1.4s; }
+
+.auth-input {
+  width: 100%;
+  padding: 1rem 1.2rem;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: var(--text-primary);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  outline: none;
+  text-align: center;
+  letter-spacing: 2px;
+  font-size: 1rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color 0.3s;
+}
+.auth-input:focus {
+  border-color: rgba(255,255,255,0.3);
+}

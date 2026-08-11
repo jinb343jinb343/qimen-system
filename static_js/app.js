@@ -1360,12 +1360,13 @@ function switchView(viewId) {
 }
 
 function attemptLogin() {
+  let user = document.getElementById('login-username').value;
   let pwd = document.getElementById('login-password').value;
-  if (!pwd) pwd = '8888'; // Allow enter on empty password
-  if (pwd === '8888' || pwd === 'admin' || pwd === 'jinb343') {
+  
+  if (user === 'jinb343' && pwd === 'jinb343') {
     switchView('input');
   } else {
-    alert('门禁秘钥错误，请重新输入');
+    alert('用户名或密码错误，请重新输入');
   }
 }
 

@@ -1,0 +1,525 @@
+﻿diff --git a/harness/tests/test_e2e_pipeline.js b/harness/tests/test_e2e_pipeline.js
+index 4ebbf8c..2887268 100644
+--- a/harness/tests/test_e2e_pipeline.js
++++ b/harness/tests/test_e2e_pipeline.js
+@@ -56,3 +56,17 @@ console.log("姝ｅ湪閫氳繃 Router 鍒嗗彂骞舵墽琛屽娈靛ぇ妯″瀷鎺ㄧ悊...");
+ console.log("======================================\n");
+ 
+ handler(req, res);
++
++// 琛ュ厖鍓嶇娓叉煋楠岀湡娴嬭瘯 (JSDOM 妯℃嫙)
++/*
++const jsdom = require("jsdom");
++const { JSDOM } = jsdom;
++const html = `...`; // 妯℃嫙娓叉煋鍚庣殑HTML
++const dom = new JSDOM(html);
++const di8 = dom.window.document.getElementById("di-8");
++if (di8 && di8.classList.contains("color-jixing")) {
++    console.log("鉁?鍓嶇娓叉煋娴嬭瘯閫氳繃锛?);
++} else {
++    console.error("鉂?鍓嶇娓叉煋娴嬭瘯澶辫触锛屾湭妫€娴嬪埌姝ｇ‘鐨勯鑹茬被鍚嶏紒");
++}
++*/
+diff --git a/index.html b/index.html
+index 8d883bb..ede3b28 100644
+--- a/index.html
++++ b/index.html
+@@ -9,8 +9,8 @@
+         return false;
+       }
+       const div = document.createElement('div');
+-      div.style.cssText = 'position:fixed;top:0;left:0;width:100%;background:#ef4444;color:#fff;padding:1rem;z-index:99999;font-family:monospace;font-size:14px;box-shadow:0 4px 12px rgba(0,0,0,0.5);line-height:1.5;';
+-      div.innerHTML = '<strong>椤甸潰鑴氭湰鎶ラ敊 (Script Error):</strong><br>' + message + '<br><small>鏂囦欢: ' + source + ' (绗?' + lineno + ' 琛?</small>';
++      div.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);width:auto;max-width:80%;background:rgba(15,23,42,0.85);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(239,68,68,0.5);box-shadow:0 0 15px rgba(239,68,68,0.3);color:#f8fafc;padding:1rem 1.5rem;border-radius:12px;z-index:99999;font-family:monospace;font-size:14px;line-height:1.5;opacity:1;transition:opacity 0.5s ease;';
++      div.innerHTML = '<strong style="color:#ef4444;font-size:1.1em;letter-spacing:1px;">鈿?绯荤粺寮傚父 (Script Error)</strong><br><span style="color:#94a3b8;margin-top:0.5rem;display:inline-block;">' + message + '</span><br><small style="color:#64748b;margin-top:0.25rem;display:inline-block;">[' + source + ' : ' + lineno + ']</small>';
+       if (document.body) {
+         document.body.insertBefore(div, document.body.firstChild);
+       } else {
+@@ -18,6 +18,10 @@
+           document.body.insertBefore(div, document.body.firstChild);
+         });
+       }
++      setTimeout(() => {
++        div.style.opacity = '0';
++        setTimeout(() => div.remove(), 500);
++      }, 5000);
+       return false;
+     };
+   </script>
+@@ -25,62 +29,9 @@
+   <title>濂囬棬閬佺敳鏅鸿兘鎺掔洏绯荤粺</title>
+   <meta name="description" content="涓€涓珮绮惧害鐨勭綉椤电濂囬棬閬佺敳鑷姩鎺掔洏绯荤粺銆傚彧闇€杈撳叆鍏巻鏃堕棿锛岀郴缁熷嵆鍙嚜鍔ㄨ繘琛屽お闃抽粍缁忚绠椼€佹帹绠楄妭姘斻€佹帓鍑哄ぉ鐩樸€佸湴鐩樸€佸叓闂ㄣ€佷節鏄熴€佸叓绁炪€佹棳绌哄強椹块┈锛屽苟鎻愪緵璇︾粏鐨勫浣嶅厠搴斿悎灞€瑙ｆ瀽銆?>
+   <link rel="stylesheet" href="index.css">
++  <link rel="stylesheet" href="theme-neu.css">
+ </head>
+ <body>
+-  <!-- 璧涘崥椋庡瘑鐮侀棬鍗郴缁?-->
+-  <div id="auth-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(10,14,23,0.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);z-index:999999;display:flex;flex-direction:column;justify-content:center;align-items:center;transition:opacity 0.5s ease;">
+-    <div style="background:rgba(30,41,59,0.5);border:1px solid rgba(255,255,255,0.1);padding:3rem;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.5);text-align:center;transition:transform 0.1s;">
+-      <h2 style="color:#e2e8f0;margin-bottom:1.5rem;font-size:1.5rem;letter-spacing:2px;font-weight:600;">[ 濂囬棬绯荤粺路鏉冮檺楠岃瘉 ]</h2>
+-      <div style="display:flex; flex-direction:column; align-items:center; gap: 1rem;">
+-        <input type="password" id="auth-password" placeholder="杈撳叆璁块棶鍙ｄ护..." enterkeyhint="go" style="background:rgba(15,23,42,0.8);border:1px solid rgba(255,255,255,0.2);color:#10b981;padding:12px 20px;border-radius:8px;font-size:1.2rem;width:250px;text-align:center;outline:none;letter-spacing:5px;font-family:monospace;transition:all 0.3s;" onkeydown="if(event.key==='Enter') checkAuth()">
+-        <button onclick="checkAuth()" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);color:#10b981;padding:10px 40px;border-radius:6px;font-size:1rem;cursor:pointer;letter-spacing:4px;transition:all 0.3s;" onmouseover="this.style.background='rgba(16,185,129,0.3)'" onmouseout="this.style.background='rgba(16,185,129,0.15)'">瑙ｉ櫎灏佸嵃</button>
+-      </div>
+-      <div id="auth-error" style="color:#ef4444;margin-top:1rem;font-size:0.9rem;opacity:0;transition:opacity 0.3s;letter-spacing:1px;">鎸囦护閿欒锛屾嫆缁濊闂?/div>
+-    </div>
+-  </div>
+-  <script>
+-    // 闂ㄧ鎸囦护
+-    const SECRET_KEY = "jinb343";
+-    
+-    document.addEventListener("DOMContentLoaded", () => {
+-      const savedKey = localStorage.getItem('qimen_pass');
+-      const overlay = document.getElementById('auth-overlay');
+-      if(savedKey === SECRET_KEY) {
+-        overlay.style.display = 'none'; // 宸叉巿鏉冿紝鎻紑闈㈢罕
+-      } else {
+-        setTimeout(() => document.getElementById('auth-password').focus(), 100);
+-      }
+-    });
+-
+-    function checkAuth() {
+-      const input = document.getElementById('auth-password');
+-      const errorMsg = document.getElementById('auth-error');
+-      if(input.value === SECRET_KEY) {
+-        // 楠岃瘉閫氳繃锛岀儥鍗伴€氳璇?-        localStorage.setItem('qimen_pass', SECRET_KEY);
+-        const overlay = document.getElementById('auth-overlay');
+-        overlay.style.opacity = '0';
+-        setTimeout(() => overlay.style.display = 'none', 500);
+-      } else {
+-        // 楠岃瘉澶辫触锛岃鍛婂姩鐢?-        input.style.borderColor = '#ef4444';
+-        errorMsg.style.opacity = '1';
+-        
+-        // 棰ゆ姈鍙嶉
+-        const box = input.parentElement;
+-        box.style.transform = 'translateX(-10px)';
+-        setTimeout(() => box.style.transform = 'translateX(10px)', 50);
+-        setTimeout(() => box.style.transform = 'translateX(-10px)', 100);
+-        setTimeout(() => box.style.transform = 'translateX(0)', 150);
+-        
+-        setTimeout(() => {
+-          input.style.borderColor = 'rgba(255,255,255,0.2)';
+-          errorMsg.style.opacity = '0';
+-          input.value = '';
+-        }, 2000);
+-      }
+-    }
+-  </script>
+   <div class="container">
+     <!-- Header -->
+     <header class="animate-fade-in">
+@@ -246,101 +197,93 @@
+         
+         <!-- Palace 4 (宸藉洓瀹?- Top Left) -->
+         <div class="palace-card" id="palace-4" onclick="selectPalace(4)">
++          <div class="palace-meta-bg">
++            <span class="palace-gua">宸?</span>
++            <div class="palace-name">涓滃崡</div>
++          </div>
+           <div class="palace-top">
+             <span class="palace-spirit" id="spirit-4">--</span>
+             <div class="palace-badges" id="badges-4"></div>
+           </div>
+           <div class="palace-mid">
+-            <span class="palace-star" id="star-4">--</span>
+-            <div class="palace-stems" style="align-items: flex-end;">
+-              <span class="tian-stem" id="tian-4">--</span>
+-              <span class="di-stem" id="di-4">--</span>
++            <div class="palace-star-group">
++              <span class="an-stem" id="an-4">--</span>
++              <span class="palace-star" id="star-4">--</span>
+             </div>
++            <div class="tian-stem-wrapper" id="tian-4">--</div>
+           </div>
+           <div class="palace-bottom">
+-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+-              <span class="palace-door" id="door-4">--</span>
+-              <span class="an-stem" id="an-4">--</span>
+-            </div>
+-            <div class="palace-meta">
+-              <span class="palace-gua">宸藉洓</span>
+-              <div class="palace-name">涓滃崡</div>
+-            </div>
++            <span class="palace-door" id="door-4">--</span>
++            <div class="di-stem-wrapper" id="di-4">--</div>
+           </div>
+         </div>
+ 
+         <!-- Palace 9 (绂讳節瀹?- Top Middle) -->
+         <div class="palace-card" id="palace-9" onclick="selectPalace(9)">
++          <div class="palace-meta-bg">
++            <span class="palace-gua">绂?</span>
++            <div class="palace-name">姝ｅ崡</div>
++          </div>
+           <div class="palace-top">
+             <span class="palace-spirit" id="spirit-9">--</span>
+             <div class="palace-badges" id="badges-9"></div>
+           </div>
+           <div class="palace-mid">
+-            <span class="palace-star" id="star-9">--</span>
+-            <div class="palace-stems" style="align-items: flex-end;">
+-              <span class="tian-stem" id="tian-9">--</span>
+-              <span class="di-stem" id="di-9">--</span>
++            <div class="palace-star-group">
++              <span class="an-stem" id="an-9">--</span>
++              <span class="palace-star" id="star-9">--</span>
+             </div>
++            <div class="tian-stem-wrapper" id="tian-9">--</div>
+           </div>
+           <div class="palace-bottom">
+-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+-              <span class="palace-door" id="door-9">--</span>
+-              <span class="an-stem" id="an-9">--</span>
+-            </div>
+-            <div class="palace-meta">
+-              <span class="palace-gua">绂讳節</span>
+-              <div class="palace-name">姝ｅ崡</div>
+-            </div>
++            <span class="palace-door" id="door-9">--</span>
++            <div class="di-stem-wrapper" id="di-9">--</div>
+           </div>
+         </div>
+ 
+         <!-- Palace 2 (鍧や簩瀹?- Top Right) -->
+         <div class="palace-card" id="palace-2" onclick="selectPalace(2)">
++          <div class="palace-meta-bg">
++            <span class="palace-gua">鍧?</span>
++            <div class="palace-name">瑗垮崡</div>
++          </div>
+           <div class="palace-top">
+             <span class="palace-spirit" id="spirit-2">--</span>
+             <div class="palace-badges" id="badges-2"></div>
+           </div>
+           <div class="palace-mid">
+-            <span class="palace-star" id="star-2">--</span>
+-            <div class="palace-stems" style="align-items: flex-end;">
+-              <span class="tian-stem" id="tian-2">--</span>
+-              <span class="di-stem" id="di-2">--</span>
++            <div class="palace-star-group">
++              <span class="an-stem" id="an-2">--</span>
++              <span class="palace-star" id="star-2">--</span>
+             </div>
++            <div class="tian-stem-wrapper" id="tian-2">--</div>
+           </div>
+           <div class="palace-bottom">
+-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+-              <span class="palace-door" id="door-2">--</span>
+-              <span class="an-stem" id="an-2">--</span>
+-            </div>
+-            <div class="palace-meta">
+-              <span class="palace-gua">鍧や簩</span>
+-              <div class="palace-name">瑗垮崡</div>
+-            </div>
++            <span class="palace-door" id="door-2">--</span>
++            <div class="di-stem-wrapper" id="di-2">--</div>
+           </div>
+         </div>
+ 
+         <!-- Palace 3 (闇囦笁瀹?- Middle Left) -->
+         <div class="palace-card" id="palace-3" onclick="selectPalace(3)">
++          <div class="palace-meta-bg">
++            <span class="palace-gua">闇?</span>
++            <div class="palace-name">姝ｄ笢</div>
++          </div>
+           <div class="palace-top">
+             <span class="palace-spirit" id="spirit-3">--</span>
+             <div class="palace-badges" id="badges-3"></div>
+           </div>
+           <div class="palace-mid">
+-            <span class="palace-star" id="star-3">--</span>
+-            <div class="palace-stems" style="align-items: flex-end;">
+-              <span class="tian-stem" id="tian-3">--</span>
+-              <span class="di-stem" id="di-3">--</span>
++            <div class="palace-star-group">
++              <span class="an-stem" id="an-3">--</span>
++              <span class="palace-star" id="star-3">--</span>
+             </div>
++            <div class="tian-stem-wrapper" id="tian-3">--</div>
+           </div>
+           <div class="palace-bottom">
+-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+-              <span class="palace-door" id="door-3">--</span>
+-              <span class="an-stem" id="an-3">--</span>
+-            </div>
+-            <div class="palace-meta">
+-              <span class="palace-gua">闇囦笁</span>
+-              <div class="palace-name">姝ｄ笢</div>
+-            </div>
++            <span class="palace-door" id="door-3">--</span>
++            <div class="di-stem-wrapper" id="di-3">--</div>
+           </div>
+         </div>
+ 
+@@ -353,101 +296,93 @@
+ 
+         <!-- Palace 7 (鍏戜竷瀹?- Middle Right) -->
+         <div class="palace-card" id="palace-7" onclick="selectPalace(7)">
++          <div class="palace-meta-bg">
++            <span class="palace-gua">鍏?</span>
++            <div class="palace-name">姝ｈタ</div>
++          </div>
+           <div class="palace-top">
+             <span class="palace-spirit" id="spirit-7">--</span>
+             <div class="palace-badges" id="badges-7"></div>
+           </div>
+           <div class="palace-mid">
+-            <span class="palace-star" id="star-7">--</span>
+-            <div class="palace-stems" style="align-items: flex-end;">
+-              <span class="tian-stem" id="tian-7">--</span>
+-              <span class="di-stem" id="di-7">--</span>
++            <div class="palace-star-group">
++              <span class="an-stem" id="an-7">--</span>
++              <span class="palace-star" id="star-7">--</span>
+             </div>
++            <div class="tian-stem-wrapper" id="tian-7">--</div>
+           </div>
+           <div class="palace-bottom">
+-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+-              <span class="palace-door" id="door-7">--</span>
+-              <span class="an-stem" id="an-7">--</span>
+-            </div>
+-            <div class="palace-meta">
+-              <span class="palace-gua">鍏戜竷</span>
+-              <div class="palace-name">姝ｈタ</div>
+-            </div>
++            <span class="palace-door" id="door-7">--</span>
++            <div class="di-stem-wrapper" id="di-7">--</div>
+           </div>
+         </div>
+ 
+         <!-- Palace 8 (鑹叓瀹?- Bottom Left) -->
+         <div class="palace-card" id="palace-8" onclick="selectPalace(8)">
++          <div class="palace-meta-bg">
++            <span class="palace-gua">鑹?</span>
++            <div class="palace-name">涓滃寳</div>
++          </div>
+           <div class="palace-top">
+             <span class="palace-spirit" id="spirit-8">--</span>
+             <div class="palace-badges" id="badges-8"></div>
+           </div>
+           <div class="palace-mid">
+-            <span class="palace-star" id="star-8">--</span>
+-            <div class="palace-stems" style="align-items: flex-end;">
+-              <span class="tian-stem" id="tian-8">--</span>
+-              <span class="di-stem" id="di-8">--</span>
++            <div class="palace-star-group">
++              <span class="an-stem" id="an-8">--</span>
++              <span class="palace-star" id="star-8">--</span>
+             </div>
++            <div class="tian-stem-wrapper" id="tian-8">--</div>
+           </div>
+           <div class="palace-bottom">
+-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+-              <span class="palace-door" id="door-8">--</span>
+-              <span class="an-stem" id="an-8">--</span>
+-            </div>
+-            <div class="palace-meta">
+-              <span class="palace-gua">鑹叓</span>
+-              <div class="palace-name">涓滃寳</div>
+-            </div>
++            <span class="palace-door" id="door-8">--</span>
++            <div class="di-stem-wrapper" id="di-8">--</div>
+           </div>
+         </div>
+ 
+         <!-- Palace 1 (鍧庝竴瀹?- Bottom Middle) -->
+         <div class="palace-card" id="palace-1" onclick="selectPalace(1)">
++          <div class="palace-meta-bg">
++            <span class="palace-gua">鍧?</span>
++            <div class="palace-name">姝ｅ寳</div>
++          </div>
+           <div class="palace-top">
+             <span class="palace-spirit" id="spirit-1">--</span>
+             <div class="palace-badges" id="badges-1"></div>
+           </div>
+           <div class="palace-mid">
+-            <span class="palace-star" id="star-1">--</span>
+-            <div class="palace-stems" style="align-items: flex-end;">
+-              <span class="tian-stem" id="tian-1">--</span>
+-              <span class="di-stem" id="di-1">--</span>
++            <div class="palace-star-group">
++              <span class="an-stem" id="an-1">--</span>
++              <span class="palace-star" id="star-1">--</span>
+             </div>
++            <div class="tian-stem-wrapper" id="tian-1">--</div>
+           </div>
+           <div class="palace-bottom">
+-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+-              <span class="palace-door" id="door-1">--</span>
+-              <span class="an-stem" id="an-1">--</span>
+-            </div>
+-            <div class="palace-meta">
+-              <span class="palace-gua">鍧庝竴</span>
+-              <div class="palace-name">姝ｅ寳</div>
+-            </div>
++            <span class="palace-door" id="door-1">--</span>
++            <div class="di-stem-wrapper" id="di-1">--</div>
+           </div>
+         </div>
+ 
+         <!-- Palace 6 (涔惧叚瀹?- Bottom Right) -->
+         <div class="palace-card" id="palace-6" onclick="selectPalace(6)">
++          <div class="palace-meta-bg">
++            <span class="palace-gua">涔?</span>
++            <div class="palace-name">瑗垮寳</div>
++          </div>
+           <div class="palace-top">
+             <span class="palace-spirit" id="spirit-6">--</span>
+             <div class="palace-badges" id="badges-6"></div>
+           </div>
+           <div class="palace-mid">
+-            <span class="palace-star" id="star-6">--</span>
+-            <div class="palace-stems" style="align-items: flex-end;">
+-              <span class="tian-stem" id="tian-6">--</span>
+-              <span class="di-stem" id="di-6">--</span>
++            <div class="palace-star-group">
++              <span class="an-stem" id="an-6">--</span>
++              <span class="palace-star" id="star-6">--</span>
+             </div>
++            <div class="tian-stem-wrapper" id="tian-6">--</div>
+           </div>
+           <div class="palace-bottom">
+-            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+-              <span class="palace-door" id="door-6">--</span>
+-              <span class="an-stem" id="an-6">--</span>
+-            </div>
+-            <div class="palace-meta">
+-              <span class="palace-gua">涔惧叚</span>
+-              <div class="palace-name">瑗垮寳</div>
+-            </div>
++            <span class="palace-door" id="door-6">--</span>
++            <div class="di-stem-wrapper" id="di-6">--</div>
+           </div>
+         </div>
+ 
+diff --git a/static_js/app.js b/static_js/app.js
+index 0cc0601..77d3a55 100644
+--- a/static_js/app.js
++++ b/static_js/app.js
+@@ -347,16 +347,32 @@ function triggerCalculate(isRestoring = false) {
+         starLookup = palaceData.star.split("+")[0];
+       }
+       const isZhiFuStar = chart.zhifuStar && (palaceData.star === chart.zhifuStar || palaceData.star.includes(chart.zhifuStar));
+-      starEl.className = "palace-star " + (isZhiFuStar ? "star-zhifu" : "");
++      starEl.className = "palace-star"; // 鍙栨秷鍏ㄥ眬楂樹寒
+       
+       let starText = palaceData.star;
++      
++      // 杩樺師缁忓吀鎺掔増锛屽弻鏄熷悓琛屽苟鍋氬€肩棰滆壊闅旂
++      if (starText.includes("+")) {
++        const [s1, s2] = starText.split("+");
++        let html1 = s1.replace('澶?, '');
++        let html2 = s2.replace('澶?, '');
++        
++        if (s1 === chart.zhifuStar) html1 = `<span class="star-zhifu">${html1}</span>`;
++        if (s2 === chart.zhifuStar) html2 = `<span class="star-zhifu">${html2}</span>`;
++        
++        starText = `${html1}${html2}`;
++      } else {
++        if (isZhiFuStar) {
++          starText = `<span class="star-zhifu">${starText}</span>`;
++        }
++      }
+ 
+       if (isZhiFuStar) {
+-        starText += `<span class="badge-tag tag-zhifu">绗?/span>`;
++        starText += `<span class="badge-tag tag-zhifu" style="display:inline-block; margin-left:0.2rem; transform: scale(0.9);">绗?/span>`;
+       }
+       const starWang = QimenEngine.getStarWang(palaceData.star, chart.monthBranchIdx);
+       if (starWang) {
+-        starText += `<span class="star-wang-text star-stage-${starWang}">(${starWang})</span>`;
++        starText += `<span class="star-wang-text star-stage-${starWang}" style="display:inline-block; margin-left:0.2rem;">(${starWang})</span>`;
+       }
+       starEl.innerHTML = starText;
+ 
+@@ -403,7 +419,7 @@ function triggerCalculate(isRestoring = false) {
+       // Render An Gan (鏆楀共)
+       const anEl = document.getElementById(`an-${p}`);
+       if (anEl) {
+-        anEl.textContent = "鏆? + palaceData.anGanStem;
++        anEl.innerHTML = palaceData.anGanStem || "";
+         anEl.className = "an-stem";
+       }
+     }
+@@ -880,49 +896,58 @@ function getStemColorClass(stem) {
+ function formatStemWithChangSheng(stem, palaceId) {
+   if (!stem || palaceId === 5) return stem;
+   
++  const shortCsMap = {
++    '闀跨敓':'鐢?, '娌愭荡':'娌?, '鍐犲甫':'鍐?, '涓村畼':'涓?, '甯濇椇':'鏃?,
++    '琛?:'琛?, '鐥?:'鐥?, '姝?:'姝?, '澧?:'澧?, '缁?:'缁?, '鑳?:'鑳?, '鍏?:'鍏?
++  };
++
+   const getCSForSingle = (s) => {
+     const branches = QimenEngine.PALACE_BRANCHES[palaceId];
+     if (!branches) return "";
+     const map = QimenEngine.CHANG_SHENG_MAP[s];
+     if (!map) return "";
+-    return branches.map(b => map[b] || "").filter(Boolean).join("/");
++    let csArr = branches.map(b => {
++      let fullCs = map[b] || "";
++      return shortCsMap[fullCs] || fullCs;
++    }).filter(Boolean);
++    // 鍘婚噸锛屽悎骞跺瘎瀹共甯︽潵鐨勭浉鍚岄暱鐢?+    csArr = [...new Set(csArr)];
++    return csArr.join("");
+   };
+   
+-  const processSingle = (s) => {
++  const processSingleData = (s) => {
+     const cs = getCSForSingle(s);
+     const isRuMu = QimenEngine.checkRuMu(s, palaceId);
+     const isJiXing = QimenEngine.checkJiXing(s, palaceId);
+     
+     let stemClass = "stem-normal";
+-    if (isJiXing) {
+-      stemClass = "stem-jixing";
+-    } else if (isRuMu) {
+-      stemClass = "stem-rumu";
+-    }
++    let statusDots = "";
++    if (isJiXing) stemClass = "stem-jixing";
++    else if (isRuMu) stemClass = "stem-rumu";
+     
+-    const csHtml = cs ? `<span class="cs-text" style="margin-left: 0; margin-bottom: 2px; display: block; text-align: center; line-height: 1;">${cs}</span>` : "";
++    if (isRuMu) statusDots += `<span class="stem-status status-rumu" title="鍏ュ"></span>`;
++    if (isJiXing) statusDots += `<span class="stem-status status-jixing" title="鍑诲垜"></span>`;
+     
+-    let stemWrapper = `<span class="${stemClass}">${s}</span>`;
+-    if (isRuMu) {
+-      stemWrapper += `<span class="badge-tag tag-rumu">澧?/span>`;
+-    }
+-    if (isJiXing) {
+-      stemWrapper += `<span class="badge-tag tag-jixing">鍒?/span>`;
+-    }
+-    
+-    return `<div style="display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-end; vertical-align: bottom;">
+-      ${csHtml}
+-      <div style="display: inline-flex; align-items: center;">${stemWrapper}</div>
+-    </div>`;
++    return { char: s, cs: cs, class: stemClass, dots: statusDots };
+   };
+   
++  let stemsData = [];
+   if (stem.includes("/")) {
+-    const parts = stem.split("/");
+-    const mainHtml = processSingle(parts[0]);
+-    const guestHtml = processSingle(parts[1]);
+-    return `<div style="display: inline-flex; align-items: flex-end; gap: 0.6rem; white-space: nowrap;">${guestHtml}${mainHtml}</div>`;
++    // 鍙嶈浆鏁扮粍锛屽皢瀹㈠共(瀵勫共)鎺掑湪宸︿晶澶栧眰锛屼富骞茬暀鍦ㄥ彸渚у唴灞?+    stemsData = stem.split("/").reverse().map(processSingleData);
++  } else {
++    stemsData = [processSingleData(stem)];
+   }
+-  return processSingle(stem);
++
++  // 鐙珛鐨勫ぉ骞插垪鎺掔増
++  let columnsHtml = stemsData.map(d => {
++    return `<div class="stem-col">
++              <div class="stem-cs-text">${d.cs}</div>
++              <div class="stem-char-text ${d.class}">${d.char}${d.dots}</div>
++            </div>`;
++  }).join("");
++  
++  return `<div class="stems-group">${columnsHtml}</div>`;
+ }
+ 
+ /**
