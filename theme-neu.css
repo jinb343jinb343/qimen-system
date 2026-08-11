@@ -3160,17 +3160,17 @@ button.btn-primary {
 /* ==========================================
  * SPLASH AESTHETICS (LAYER A)
  * ========================================== */
-#view-splash {
-  background-image: url('assets/images/bg-desktop.png');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  width: 100%;
+body {
+  background-image: url('assets/images/bg-desktop.png') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
 }
 
 @media (max-width: 768px) {
-  #view-splash {
-    background-image: url('assets/images/bg-mobile.png');
+  body {
+    background-image: url('assets/images/bg-mobile.png') !important;
   }
 }
 
