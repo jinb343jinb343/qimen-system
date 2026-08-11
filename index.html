@@ -80,54 +80,92 @@
     </div>
 
     <!-- ================= LAYER B: INPUT ================= -->
-    <div id="view-input" class="view-layer">
-      <div style="display: flex; justify-content: flex-start; margin-bottom: 1rem;">
-        <button type="button" class="btn" onclick="document.getElementById('splash-auth').style.display='none'; document.getElementById('splash-title').style.display='flex'; document.getElementById('splash-title').style.opacity='1'; switchView('splash');" style="padding: 0.4rem 1rem; font-size: 0.85rem; border-radius: 8px;">&lt; 退出系统</button>
-      </div>
+    <div id="view-input" class="view-layer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem 1rem; position: relative;">
       
-      <section class="glass-panel control-panel animate-fade-in">
-        <form id="qimen-form" onsubmit="event.preventDefault(); triggerCalculate();">
+      <!-- 返回门禁 按钮，左上角绝对定位 -->
+      <button type="button" onclick="document.getElementById('splash-auth').style.display='none'; document.getElementById('splash-title').style.display='flex'; document.getElementById('splash-title').style.opacity='1'; switchView('splash');" 
+              style="position: absolute; top: 2rem; left: 2rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); color: var(--color-gold); padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;"
+              onmouseenter="this.style.background='rgba(0,0,0,0.8)'" onmouseleave="this.style.background='rgba(0,0,0,0.5)'">
+        [→ 返回门禁
+      </button>
 
-<div class="control-grid">
-          
+      <!-- B层 顶部标题 -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 3rem;">
+        <div style="font-family: 'AaLieYan', sans-serif; font-size: 5rem; line-height: 1; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5); margin-bottom: 0.5rem;">观</div>
+        <div style="font-size: 1rem; letter-spacing: 0.5rem; color: #fff; margin-left: 0.5rem; font-weight: bold; font-family: 'Noto Serif SC', 'Microsoft YaHei', serif;">奇门遁甲</div>
+        <div style="font-family: 'AaLieYan', sans-serif; font-size: 5rem; line-height: 1; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5); margin-top: 0.5rem;">机</div>
+      </div>
 
+      <form id="qimen-form" onsubmit="event.preventDefault(); triggerCalculate();" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; gap: 2.5rem;">
+        
+        <!-- 名讳 -->
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2rem; width: 100%;">
+          <input type="text" placeholder="名讳 (可选)"
+                 style="font-family: 'AaLieYan', sans-serif; text-align: center; font-size: 1.5rem; letter-spacing: 4px; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.2); color: white; outline: none; padding: 0.5rem; width: 200px; transition: border-color 0.3s;"
+                 onfocus="this.style.borderColor='var(--color-gold)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
+        </div>
 
-          <!-- Date Input -->
-          <div class="form-group">
-            <label for="input-date">公历日期</label>
-            <input type="date" id="input-date" required>
-          </div>
+        <!-- 时间刻度台 (黑色玻璃质感框) -->
+        <div style="width: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 2rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column; gap: 2rem;">
           
-          <!-- Time Input -->
-          <div class="form-group">
-            <label for="input-time">公历时间</label>
-            <input type="time" id="input-time" required>
-          </div>
-          
-          <!-- Parasite Palace Method -->
-          <div class="form-group">
-            <label for="sel-jigong">寄宫方式</label>
-            <select id="sel-jigong" onchange="triggerCalculate()">
-              <option value="kun">始终寄坤二宫</option>
-              <option value="yangkun_yingen">阳寄坤，阴寄艮</option>
-            </select>
-          </div>
-          
-          <!-- Quick Action Buttons -->
-          <div class="form-group">
-            <label>快速操作</label>
-            <div class="btn-container">
-              <button type="button" class="btn" onclick="useCurrentTime()">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                当前时间
-              </button>
-              <button type="submit" class="btn btn-primary">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                自动排盘
+          <div style="display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center; width: 100%;">
+            <!-- 日期 -->
+            <div style="flex: 1 1 250px; display: flex; justify-content: center;">
+              <input type="date" id="input-date" required 
+                     style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 0.75rem 1rem; color: white; font-size: 1.125rem; letter-spacing: 1px; outline: none; width: 100%; max-width: 280px; color-scheme: dark;"
+                     onfocus="this.style.borderColor='var(--color-gold)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
+            </div>
+            <!-- 时间 -->
+            <div style="flex: 1 1 200px; display: flex; justify-content: center;">
+              <input type="time" id="input-time" required 
+                     style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 0.75rem 1rem; color: white; font-size: 1.125rem; letter-spacing: 1px; outline: none; width: 100%; max-width: 200px; color-scheme: dark;"
+                     onfocus="this.style.borderColor='var(--color-gold)'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'">
             </div>
           </div>
-        </form>
-      </section>
+        </div>
+
+        <!-- 精密校准 (Advanced Calibration) -->
+        <div style="width: 100%; display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+          <button type="button" onclick="const p = document.getElementById('advanced-panel'); const icon = document.getElementById('advanced-icon'); if(p.style.maxHeight==='0px' || !p.style.maxHeight){p.style.maxHeight='300px'; p.style.opacity='1'; icon.style.transform='rotate(90deg)';}else{p.style.maxHeight='0px'; p.style.opacity='0'; icon.style.transform='rotate(0deg)';}" 
+                  style="display: flex; align-items: center; gap: 0.5rem; color: #6b7280; font-size: 0.875rem; letter-spacing: 2px; font-family: monospace; cursor: pointer; background: none; border: none; transition: color 0.3s;"
+                  onmouseenter="this.style.color='var(--color-gold)'" onmouseleave="this.style.color='#6b7280'">
+            <span id="advanced-icon" style="transform: rotate(0deg); transition: transform 0.3s; display: inline-block;">▶</span> 
+            [ 精密校准 Advanced Calibration ]
+          </button>
+          
+          <div id="advanced-panel" style="width: 100%; display: flex; flex-direction: column; gap: 1rem; overflow: hidden; transition: all 0.5s; max-height: 0px; opacity: 0;">
+            <div style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 1.25rem; display: flex; flex-wrap: wrap; gap: 1.5rem; justify-content: center;">
+              
+              <div style="flex: 1 1 200px; display: flex; flex-direction: column; gap: 0.75rem; max-width: 300px;">
+                <label style="font-size: 0.75rem; color: #6b7280; letter-spacing: 1px;">寄宫方式 (中五宫)</label>
+                <select id="sel-jigong" style="background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 0.5rem 0.75rem; color: #d1d5db; outline: none; font-size: 0.875rem;" onchange="triggerCalculate()">
+                  <option value="kun">始终寄坤二宫</option>
+                  <option value="yangkun_yingen">阳寄坤，阴寄艮</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部大按钮：时机切入 -->
+        <div style="display: flex; flex-direction: column; align-items: center; margin-top: 1.5rem; gap: 1.5rem; width: 100%;">
+          <button type="submit" class="title-char-main" 
+                  style="font-size: 3.5rem; letter-spacing: 0.2em; background: none; border: none; cursor: pointer; position: relative; z-index: 10; transition: color 0.5s, text-shadow 0.5s; font-family: 'AaLieYan', sans-serif; padding: 0;"
+                  onmouseenter="this.style.color='var(--color-gold)'; this.style.textShadow='0 0 30px rgba(212,175,55,0.8)';" 
+                  onmouseleave="this.style.color='#fff'; this.style.textShadow='0 0 20px rgba(255,255,255,0.5)';">
+            时机切入
+          </button>
+          
+          <!-- 辅助功能 -->
+          <div style="display: flex; gap: 1rem; opacity: 0.6; transition: opacity 0.3s;" onmouseenter="this.style.opacity='1'" onmouseleave="this.style.opacity='0.6'">
+            <button type="button" onclick="useCurrentTime()" style="font-size: 0.75rem; color: #9ca3af; display: flex; align-items: center; gap: 4px; letter-spacing: 1px; background: none; border: none; cursor: pointer; transition: color 0.3s;" onmouseenter="this.style.color='white'" onmouseleave="this.style.color='#9ca3af'">
+              <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> 设为现在
+            </button>
+          </div>
+        </div>
+
+      </form>
     </div>
 
     <!-- ================= LAYER C: RESULTS ================= -->
