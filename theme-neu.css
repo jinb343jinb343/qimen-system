@@ -3179,8 +3179,8 @@ button.btn-primary {
 }
 
 @keyframes breatheFloatMain {
-  0%, 100% { transform: translateY(0) scale(1); text-shadow: 0 0 20px rgba(255,255,255,0.4); }
-  50% { transform: translateY(-15px) scale(1.05); text-shadow: 0 0 50px rgba(255,255,255,0.9); }
+  0%, 100% { transform: translateY(0); text-shadow: 0 0 20px rgba(255,255,255,0.4); }
+  50% { transform: translateY(-15px); text-shadow: 0 0 50px rgba(255,255,255,0.9); }
 }
 
 @keyframes breatheFloatSub {
