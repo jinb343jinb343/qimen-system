@@ -1380,6 +1380,10 @@ function attemptLogin() {
   let pwd = document.getElementById('login-password').value;
   
   if (user === 'jinb343' && pwd === 'jinb343') {
+    const rememberBox = document.getElementById('remember-pwd');
+    if (rememberBox && rememberBox.checked) {
+      localStorage.setItem('qimen_auth', 'valid');
+    }
     document.getElementById('splash-title').style.filter = 'none';
     switchView('input');
   } else {
@@ -1398,4 +1402,14 @@ window.triggerCalculate = function(isRestoring = false) {
   if (originalTriggerCalculate) originalTriggerCalculate(isRestoring);
   switchView('result');
 };
+
+// Check for remembered authentication on load
+window.addEventListener('DOMContentLoaded', () => {
+  if (localStorage.getItem('qimen_auth') === 'valid') {
+    // Hide auth modal if it happens to be open, and switch directly to input layer
+    const auth = document.getElementById('splash-auth');
+    if (auth) auth.style.display = 'none';
+    switchView('input');
+  }
+});
 

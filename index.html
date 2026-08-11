@@ -84,10 +84,10 @@
       <div style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; width: 100%; min-height: 100vh; padding: 4rem 1rem 2rem 1rem; box-sizing: border-box; position: relative;">
         
         <!-- 返回门禁 按钮，左上角绝对定位 -->
-        <button type="button" onclick="document.getElementById('splash-auth').style.display='none'; document.getElementById('splash-title').style.display='flex'; document.getElementById('splash-title').style.opacity='1'; switchView('splash');" 
+        <button type="button" onclick="localStorage.removeItem('qimen_auth'); document.getElementById('splash-auth').style.display='none'; document.getElementById('splash-title').style.display='flex'; document.getElementById('splash-title').style.opacity='1'; switchView('splash');" 
                 style="position: absolute; top: 2rem; left: 2rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(212,175,55,0.5); color: var(--color-gold); padding: 0.5rem 1rem; border-radius: 4px; font-size: 0.85rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 0.5rem;"
                 onmouseenter="this.style.background='rgba(0,0,0,0.8)'" onmouseleave="this.style.background='rgba(0,0,0,0.5)'">
-          [→ 返回门禁
+          [→ 退出登录
         </button>
 
         <!-- B层 顶部标题 (等比例缩小版) -->
