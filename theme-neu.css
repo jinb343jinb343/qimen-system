@@ -3256,13 +3256,13 @@ button.btn-primary {
 @media (max-width: 768px) {
   .title-char-main {
     font-size: 10rem;
-    margin-bottom: -1rem;
-    margin-top: -1rem;
+    margin-bottom: -0.4rem;
+    margin-top: -0.4rem;
   }
   .title-char-sub {
-    font-size: 1.4rem;
-    letter-spacing: 0.6rem;
-    margin-left: 0.6rem;
+    font-size: 1.8rem;
+    letter-spacing: 1rem;
+    margin-left: 1rem;
   }
   .splash-quote {
     font-size: 0.85rem;
