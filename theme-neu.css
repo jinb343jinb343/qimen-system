@@ -3219,7 +3219,7 @@ button.btn-primary {
   position: absolute; 
   bottom: 12vh; 
   text-align: center; 
-  font-family: 'Noto Serif SC', 'Microsoft YaHei', serif; 
+  font-family: 'AaLieYan', sans-serif; 
   font-size: 1.1rem; 
   line-height: 2.2; 
   color: rgba(255,255,255,0.9); 
@@ -3236,8 +3236,8 @@ button.btn-primary {
   line-height: 1;
   color: #fff;
   text-shadow: 0 0 20px rgba(255,255,255,0.5);
-  margin-bottom: 0.2rem;
-  margin-top: 0.2rem;
+  margin-bottom: -0.5rem;
+  margin-top: -0.5rem;
 }
 
 .title-char-sub {
@@ -3256,8 +3256,8 @@ button.btn-primary {
 @media (max-width: 768px) {
   .title-char-main {
     font-size: 10rem;
-    margin-bottom: 0.5rem;
-    margin-top: 0.5rem;
+    margin-bottom: -1rem;
+    margin-top: -1rem;
   }
   .title-char-sub {
     font-size: 2rem;
