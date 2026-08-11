@@ -80,7 +80,7 @@
     </div>
 
     <!-- ================= LAYER B: INPUT ================= -->
-    <div id="view-input" class="view-layer" style="flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem 1rem; position: relative;">
+    <div id="view-input" class="view-layer" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 40; padding: 4rem 1rem 2rem 1rem; box-sizing: border-box; overflow-y: auto; overflow-x: hidden;">
       
       <!-- 返回门禁 按钮，左上角绝对定位 -->
       <button type="button" onclick="document.getElementById('splash-auth').style.display='none'; document.getElementById('splash-title').style.display='flex'; document.getElementById('splash-title').style.opacity='1'; switchView('splash');" 
