@@ -90,12 +90,15 @@
           [→ 退出登录
         </button>
 
-        <!-- B层 顶部标题 (等比例缩小版) -->
-        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2rem; transform: scale(0.6); transform-origin: center top;">
-          <div class="breathe-main delay-1 title-char-main">观</div>
-          <div class="breathe-sub delay-2 title-char-sub">奇门遁甲</div>
-          <div class="breathe-main delay-3 title-char-main">机</div>
-        </div>
+        <!-- B层 大透明底座 (Glass Base Plate) -->
+        <div style="width: 100%; max-width: 900px; background: rgba(0,0,0,0.25); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); padding: 4rem 2rem; box-shadow: 0 30px 60px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center;">
+          
+          <!-- B层 顶部标题 (等比例缩小版) -->
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 3rem; transform: scale(0.6); transform-origin: center top;">
+            <div class="breathe-main delay-1 title-char-main">观</div>
+            <div class="breathe-sub delay-2 title-char-sub">奇门遁甲</div>
+            <div class="breathe-main delay-3 title-char-main">机</div>
+          </div>
 
         <form id="qimen-form" onsubmit="event.preventDefault(); triggerCalculate();" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; gap: 2.5rem;">
           
@@ -167,6 +170,7 @@
           </div>
 
         </form>
+        </div>
       </div>
     </div>
 
