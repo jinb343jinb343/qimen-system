@@ -80,7 +80,7 @@
     </div>
 
     <!-- ================= LAYER B: INPUT ================= -->
-    <div id="view-input" class="view-layer" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem 1rem; position: relative;">
+    <div id="view-input" class="view-layer" style="flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 2rem 1rem; position: relative;">
       
       <!-- 返回门禁 按钮，左上角绝对定位 -->
       <button type="button" onclick="document.getElementById('splash-auth').style.display='none'; document.getElementById('splash-title').style.display='flex'; document.getElementById('splash-title').style.opacity='1'; switchView('splash');" 
@@ -89,11 +89,11 @@
         [→ 返回门禁
       </button>
 
-      <!-- B层 顶部标题 -->
-      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 3rem;">
-        <div style="font-family: 'AaLieYan', sans-serif; font-size: 5rem; line-height: 1; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5); margin-bottom: 0.5rem;">观</div>
-        <div style="font-size: 1rem; letter-spacing: 0.5rem; color: #fff; margin-left: 0.5rem; font-weight: bold; font-family: 'Noto Serif SC', 'Microsoft YaHei', serif;">奇门遁甲</div>
-        <div style="font-family: 'AaLieYan', sans-serif; font-size: 5rem; line-height: 1; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,0.5); margin-top: 0.5rem;">机</div>
+      <!-- B层 顶部标题 (等比例缩小版) -->
+      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2rem; transform: scale(0.6); transform-origin: center top;">
+        <div class="breathe-main delay-1 title-char-main">观</div>
+        <div class="breathe-sub delay-2 title-char-sub">奇门遁甲</div>
+        <div class="breathe-main delay-3 title-char-main">机</div>
       </div>
 
       <form id="qimen-form" onsubmit="event.preventDefault(); triggerCalculate();" style="width: 100%; max-width: 800px; display: flex; flex-direction: column; align-items: center; gap: 2.5rem;">
