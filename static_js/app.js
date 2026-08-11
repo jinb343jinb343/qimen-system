@@ -1411,5 +1411,105 @@ window.addEventListener('DOMContentLoaded', () => {
     if (auth) auth.style.display = 'none';
     switchView('input');
   }
+  
+  // Load archives on start
+  loadArchives();
 });
+
+// ==========================================
+// ARCHIVE SYSTEM (档案库)
+// ==========================================
+function loadArchives() {
+  const archives = JSON.parse(localStorage.getItem('qimen_archives') || '[]');
+  const list = document.getElementById('archive-list');
+  if(!list) return;
+  list.innerHTML = '';
+  if(archives.length === 0) {
+    list.innerHTML = '<div style="text-align: center; color: #6b7280; font-size: 0.85rem; padding: 1rem;">暂无历史观机档案记录</div>';
+    return;
+  }
+  
+  archives.forEach((arc, idx) => {
+    const div = document.createElement('div');
+    div.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px; cursor: pointer; transition: background 0.3s;";
+    div.onmouseenter = () => div.style.background = 'rgba(255,255,255,0.05)';
+    div.onmouseleave = () => div.style.background = 'rgba(0,0,0,0.4)';
+    
+    // Convert jigong value to readable text
+    const jigongText = arc.jigong === 'kun' ? '寄坤二' : '阳坤阴艮';
+    
+    div.innerHTML = `
+      <div style="display: flex; flex-direction: column; gap: 0.25rem; flex: 1;" onclick="loadArchive(${idx})">
+        <div style="color: #fff; font-size: 1rem;">${arc.name || '未命名案例'}</div>
+        <div style="color: #6b7280; font-size: 0.75rem;">${arc.date} ${arc.time} (寄宫: ${jigongText})</div>
+      </div>
+      <button type="button" onclick="deleteArchive(event, ${idx})" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.5); color: #ef4444; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; cursor: pointer; transition: all 0.3s;" onmouseenter="this.style.background='rgba(239,68,68,0.4)'" onmouseleave="this.style.background='rgba(239,68,68,0.2)'">
+        删除
+      </button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+window.saveCurrentArchive = function() {
+  const nameInput = document.getElementById('input-name');
+  const name = nameInput ? nameInput.value : '';
+  const date = document.getElementById('input-date').value;
+  const time = document.getElementById('input-time').value;
+  const jigong = document.getElementById('sel-jigong').value;
+  
+  if(!date || !time) {
+    alert("请先选择日期和时间再进行保存！");
+    return;
+  }
+  
+  let memo = prompt("请输入此局的备注名 (如: 某某决断案例):", name || "未命名案例");
+  if(memo === null) return; // User cancelled
+  
+  // Save global chat history if exists (hook for AI integration)
+  const aiChatHistory = window.qimenChatHistory || []; 
+  
+  const arc = {
+    id: Date.now(),
+    name: memo,
+    date: date,
+    time: time,
+    jigong: jigong,
+    aiChatHistory: aiChatHistory
+  };
+  
+  const archives = JSON.parse(localStorage.getItem('qimen_archives') || '[]');
+  archives.unshift(arc);
+  localStorage.setItem('qimen_archives', JSON.stringify(archives));
+  
+  // Briefly show success
+  alert("案例已成功入档！");
+  loadArchives();
+};
+
+window.deleteArchive = function(e, idx) {
+  e.stopPropagation();
+  if(!confirm("确定要删除这条档案及其关联的所有数据(含AI推演)吗？此操作不可逆！")) return;
+  const archives = JSON.parse(localStorage.getItem('qimen_archives') || '[]');
+  archives.splice(idx, 1);
+  localStorage.setItem('qimen_archives', JSON.stringify(archives));
+  loadArchives();
+};
+
+window.loadArchive = function(idx) {
+  const archives = JSON.parse(localStorage.getItem('qimen_archives') || '[]');
+  const arc = archives[idx];
+  if(!arc) return;
+  
+  if(document.getElementById('input-name')) document.getElementById('input-name').value = arc.name;
+  document.getElementById('input-date').value = arc.date;
+  document.getElementById('input-time').value = arc.time;
+  document.getElementById('sel-jigong').value = arc.jigong;
+  
+  // Restore AI chat context
+  window.qimenChatHistory = arc.aiChatHistory || [];
+  
+  // Directly trigger calculation and switch to C layer
+  triggerCalculate(true);
+};
 
