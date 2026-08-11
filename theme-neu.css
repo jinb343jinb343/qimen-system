@@ -3312,3 +3312,54 @@ body {
     display: block;
   }
 }
+
+/* ====================================================
+   3.0 Layer B Mobile Fixes (手机端输入层自适应)
+   ==================================================== */
+@media (max-width: 768px) {
+  /* 缩减 B 层的全屏内边距 */
+  #view-input > div {
+    padding: 3rem 0.5rem 1rem 0.5rem !important;
+  }
+  
+  /* 缩小大透明底板内边距 */
+  .glass-base-plate {
+    padding: 2rem 1rem !important;
+    border-radius: 16px !important;
+  }
+
+  /* 顶部缩小标题进一步缩小并减少间距 */
+  .glass-base-plate > div:first-child {
+    transform: scale(0.4) !important;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  /* 名讳框缩小 */
+  #input-name {
+    font-size: 1.2rem !important;
+    width: 150px !important;
+  }
+
+  /* 时间刻度台内边距缩小 */
+  .glass-time-panel {
+    padding: 1rem !important;
+    gap: 1rem !important;
+  }
+  
+  /* 让日期和时间在手机端占满 */
+  #input-date, #input-time {
+    max-width: 100% !important;
+    font-size: 1rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+  
+  /* 时机切入大按钮适度缩小 */
+  #view-input button[type="submit"] {
+    font-size: 2.5rem !important;
+  }
+  
+  /* 历史档案面板间距收敛 */
+  #archive-list {
+    max-height: 200px !important;
+  }
+}
