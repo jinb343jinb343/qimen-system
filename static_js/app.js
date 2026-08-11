@@ -177,8 +177,11 @@ document.addEventListener("DOMContentLoaded", () => {
       const state = JSON.parse(cachedStateStr);
       document.getElementById("input-date").value = state.date;
       document.getElementById("input-time").value = state.time;
-      triggerCalculate(true); // isRestoring = true
       
+      // 仅恢复数据和图形状态，但不强制跳转到结果页 (避免强制进入C层)
+      if (typeof originalTriggerCalculate === 'function') {
+        originalTriggerCalculate(true);
+      }
       // 恢复内存状态
       currentChatSessionId = state.sessionId;
       qimenChatHistory = state.history || [];
@@ -199,7 +202,7 @@ function useCurrentTime() {
   const now = new Date();
   document.getElementById("input-date").value = formatLocalDate(now);
   document.getElementById("input-time").value = formatLocalTime(now);
-  triggerCalculate();
+  // 取消自动排盘跳转，避免页面加载直接跳入C层
 }
 
 /**
