@@ -3096,10 +3096,6 @@ button.btn-primary {
 
   src: local('Aa烈焰隶书'), local('AaLYLS'),
 
-       url('./assets/fonts/LieYan-Subset.woff2') format('woff2'),
-
-       url('./assets/fonts/Qimen-Robust.woff2') format('woff2'),
-
        url('./assets/fonts/AaLieYanLiShu-2.ttf') format('truetype');
 
   font-weight: normal;
@@ -3223,7 +3219,7 @@ button.btn-primary {
   position: absolute; 
   bottom: 12vh; 
   text-align: center; 
-  font-family: 'AaLieYan', sans-serif; 
+  font-family: 'Noto Serif SC', 'Microsoft YaHei', serif; 
   font-size: 1.1rem; 
   line-height: 2.2; 
   color: rgba(255,255,255,0.9); 
@@ -3259,18 +3255,18 @@ button.btn-primary {
 
 @media (max-width: 768px) {
   .title-char-main {
-    font-size: 7rem;
+    font-size: 10rem;
     margin-bottom: 0.5rem;
     margin-top: 0.5rem;
   }
   .title-char-sub {
-    font-size: 1.4rem;
+    font-size: 2rem;
     letter-spacing: 0.8rem;
     margin-left: 0.8rem;
   }
   .splash-quote {
-    font-size: 0.8rem;
-    line-height: 1.6;
+    font-size: 0.85rem;
+    line-height: 1.8;
     bottom: 8vh;
     letter-spacing: 2px;
   }
