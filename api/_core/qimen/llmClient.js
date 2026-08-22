@@ -2,6 +2,11 @@ const { OpenAI } = require('openai');
 require('dotenv').config();
 const config = require('../../_configs/qimen_config');
 
+if (!process.env.DEEPSEEK_API_KEY) {
+  console.error('[Fatal] DEEPSEEK_API_KEY is missing. Set it in Vercel Environment Variables.');
+  // Immediate fail to avoid silent errors
+  throw new Error('DEEPSEEK_API_KEY missing');
+}
 const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 const BASE_URL = process.env.BASE_URL || "https://api.deepseek.com";
 
@@ -33,9 +38,15 @@ async function* callQimenLlm(systemPrompt, historyMessages, modelName = "deepsee
         });
 
         for await (const chunk of stream) {
-            const content = chunk.choices[0]?.delta?.content || "";
+            const delta = chunk.choices[0]?.delta || {};
+            const content = delta.content || "";
+            const reasoning = delta.reasoning_content || "";
+            
+            // 兼容 DeepSeek 的深度思考/推理模型 (如 R1 或 V4 Flash 的变体)
             if (content) {
                 yield content;
+            } else if (reasoning) {
+                yield reasoning; 
             }
         }
     } catch (error) {
