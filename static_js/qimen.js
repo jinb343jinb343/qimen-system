@@ -529,17 +529,18 @@ function calculateQimenChart(date, manualJu = null, jigongMethod = "kun") {
   else if (["巳", "酉", "丑"].includes(hbName)) yimaPalace = 6;
   else if (["亥", "卯", "未"].includes(hbName)) yimaPalace = 4;
   
-  // I. An Gan Stems (暗干) - 时干加值使门法
+  // I. An Gan Stems (暗干) - 规则：时干不为甲时加值使门；时干为甲时（遁干）入中五宫。
   const anPanStems = {};
   const targetAnStem = hourStem === "甲" ? hidingStem : hourStem;
   const idxAnStart = STEM_SEQUENCE.indexOf(targetAnStem);
+  const startPalaceForAnGan = hourStem === "甲" ? 5 : pdoor;
   
   for (let i = 0; i < 9; i++) {
     let p;
     if (dunType === "阳遁") {
-      p = (pdoor - 1 + i) % 9 + 1;
+      p = (startPalaceForAnGan - 1 + i) % 9 + 1;
     } else {
-      p = (pdoor - 1 - i + 18) % 9 + 1;
+      p = (startPalaceForAnGan - 1 - i + 18) % 9 + 1;
     }
     anPanStems[p] = STEM_SEQUENCE[(idxAnStart + i) % 9];
   }
